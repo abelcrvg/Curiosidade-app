@@ -1,6 +1,10 @@
 package br.com.abelcrvg.curiosidade
 
 import android.os.Bundle
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -382,6 +386,26 @@ private val articles = listOf(
 
 private data class LocalProfile(val name: String, val email: String, val interests: Set<String>)
 
+private data class LearningState(
+    val completedArticles: Set<String> = emptySet(),
+    val completedQuizzes: Set<String> = emptySet(),
+    val currentStreak: Int = 0,
+    val lastActivityDate: String = "",
+    val dailyPoints: Int = 0,
+    val dailyPointsDate: String = ""
+)
+
+private fun todayKey(): String = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+
+private fun previousDayKey(key: String): String {
+    return try {
+        val format = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val date = format.parse(key) ?: return ""
+        val calendar = Calendar.getInstance().apply { time = date; add(Calendar.DAY_OF_YEAR, -1) }
+        format.format(calendar.time)
+    } catch (_: Exception) { "" }
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -393,6 +417,24 @@ class MainActivity : ComponentActivity() {
                 initialName = prefs.getString("profile_name", "") ?: "",
                 initialEmail = prefs.getString("profile_email", "") ?: "",
                 initialOnboardingDone = prefs.getBoolean("onboarding_done", false),
+                initialLearningState = LearningState(
+                    completedArticles = prefs.getStringSet("completed_articles", emptySet()) ?: emptySet(),
+                    completedQuizzes = prefs.getStringSet("completed_quizzes", emptySet()) ?: emptySet(),
+                    currentStreak = prefs.getInt("current_streak", 0),
+                    lastActivityDate = prefs.getString("last_activity_date", "") ?: "",
+                    dailyPoints = prefs.getInt("daily_points", 0),
+                    dailyPointsDate = prefs.getString("daily_points_date", "") ?: ""
+                ),
+                saveLearningState = { state ->
+                    prefs.edit()
+                        .putStringSet("completed_articles", state.completedArticles.toSet())
+                        .putStringSet("completed_quizzes", state.completedQuizzes.toSet())
+                        .putInt("current_streak", state.currentStreak)
+                        .putString("last_activity_date", state.lastActivityDate)
+                        .putInt("daily_points", state.dailyPoints)
+                        .putString("daily_points_date", state.dailyPointsDate)
+                        .apply()
+                },
                 saveFavorites = { prefs.edit().putStringSet("favorites", it.toSet()).apply() },
                 saveProfile = { profile ->
                     prefs.edit()
@@ -415,6 +457,8 @@ private fun CurioMundoApp(
     initialName: String,
     initialEmail: String,
     initialOnboardingDone: Boolean,
+    initialLearningState: LearningState,
+    saveLearningState: (LearningState) -> Unit,
     saveFavorites: (Set<String>) -> Unit,
     saveProfile: (LocalProfile) -> Unit,
     saveInterests: (Set<String>) -> Unit
@@ -430,6 +474,38 @@ private fun CurioMundoApp(
     var search by remember { mutableStateOf("") }
     var opened by remember { mutableStateOf<Article?>(null) }
     var favorites by remember { mutableStateOf(initialFavorites) }
+    var learning by remember { mutableStateOf(initialLearningState) }
+    var quizArticle by remember { mutableStateOf<Article?>(null) }
+    var quizResult by remember { mutableStateOf<Pair<Article, Int>?>(null) }
+
+    fun persistLearning(next: LearningState) {
+        learning = next
+        saveLearningState(next)
+    }
+
+    fun markArticleRead(article: Article) {
+        persistLearning(learning.copy(completedArticles = learning.completedArticles + article.id.toString()))
+        quizArticle = article
+    }
+
+    fun finishQuiz(article: Article, score: Int) {
+        val today = todayKey()
+        val newStreak = when {
+            learning.lastActivityDate == today -> learning.currentStreak.coerceAtLeast(1)
+            learning.lastActivityDate == previousDayKey(today) -> learning.currentStreak + 1
+            else -> 1
+        }
+        val pointsToday = if (learning.dailyPointsDate == today) learning.dailyPoints else 0
+        persistLearning(learning.copy(
+            completedQuizzes = learning.completedQuizzes + article.id.toString(),
+            currentStreak = newStreak,
+            lastActivityDate = today,
+            dailyPoints = pointsToday + score * 10,
+            dailyPointsDate = today
+        ))
+        quizArticle = null
+        quizResult = article to score
+    }
 
     MaterialTheme(colorScheme = lightColorScheme(primary = Green, background = Cream, surface = Paper, onSurface = Ink, secondary = Gold)) {
         Surface(Modifier.fillMaxSize(), color = Cream) {
