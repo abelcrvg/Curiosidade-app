@@ -1046,3 +1046,231 @@ private fun ArticlePage(article: Article, favorite: Boolean, back: () -> Unit, t
         }
     }
 }
+
+
+@Composable
+private fun QuizPage(article: Article, onBack: () -> Unit, onFinish: (Int) -> Unit) {
+    val questions = remember(article.id) {
+        article.keyTakeaways.take(3).map { correct ->
+            val wrong = articles.filter { it.id != article.id }.flatMap { it.keyTakeaways }.filter { it != correct }.take(2)
+            QuizQuestion("Qual afirmação está de acordo com o artigo?", correct, (listOf(correct) + wrong).shuffled())
+        }
+    }
+    var questionIndex by remember(article.id) { mutableIntStateOf(0) }
+    var selected by remember(article.id, questionIndex) { mutableStateOf<String?>(null) }
+    var score by remember(article.id) { mutableIntStateOf(0) }
+    var answered by remember(article.id, questionIndex) { mutableStateOf(false) }
+    val current = questions.getOrNull(questionIndex)
+    Scaffold(containerColor = Cream, topBar = {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Voltar", tint = Ink) }
+            Column(Modifier.weight(1f)) {
+                Text("QUIZ DO CURIOMUNDO", color = Green, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Text("Pergunta ${questionIndex + 1} de ${questions.size}", color = Ink, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }) { padding ->
+        if (current != null) LazyColumn(
+            Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(22.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                LinearProgressIndicator(
+                    progress = { (questionIndex + 1).toFloat() / questions.size.coerceAtLeast(1) },
+                    modifier = Modifier.fillMaxWidth().height(7.dp).clip(CircleShape),
+                    color = Green,
+                    trackColor = Color(0xFFE2DDF7)
+                )
+            }
+            item {
+                Text(article.title, color = Muted, fontSize = 13.sp)
+                Spacer(Modifier.height(8.dp))
+                Text(current.prompt, color = Ink, fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.ExtraBold)
+            }
+            items(current.options) { option ->
+                val isCorrect = option == current.answer
+                val optionColor = when {
+                    answered && isCorrect -> Color(0xFFDDF4E9)
+                    answered && selected == option && !isCorrect -> Color(0xFFFFE5E5)
+                    selected == option -> Color(0xFFE8E1FF)
+                    else -> Paper
+                }
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(17.dp)).background(optionColor)
+                        .clickable(enabled = !answered) { selected = option }.padding(15.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    RadioButton(selected == option, onClick = { if (!answered) selected = option }, enabled = !answered)
+                    Text(option, color = Ink, fontSize = 14.sp, lineHeight = 20.sp, modifier = Modifier.weight(1f))
+                }
+            }
+            if (answered) item {
+                Surface(color = Color(0xFFE4EDE1), shape = RoundedCornerShape(15.dp)) {
+                    Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text(if (selected == current.answer) "Muito bem! Resposta correta." else "Vamos aprender com a resposta.", color = Green, fontWeight = FontWeight.Bold)
+                        Text(current.answer, color = Ink, fontSize = 13.sp, lineHeight = 19.sp)
+                    }
+                }
+            }
+            item {
+                Button(
+                    onClick = {
+                        if (!answered) {
+                            if (selected == current.answer) score += 1
+                            answered = true
+                        } else if (questionIndex < questions.lastIndex) {
+                            questionIndex += 1
+                        } else {
+                            onFinish(score)
+                        }
+                    },
+                    enabled = answered || selected != null,
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(when {
+                        !answered -> "Conferir resposta"
+                        questionIndex < questions.lastIndex -> "Próxima pergunta"
+                        else -> "Ver resultado"
+                    })
+                }
+            }
+        }
+    }
+}
+
+private data class QuizQuestion(val prompt: String, val answer: String, val options: List<String>)
+
+@Composable
+private fun QuizResultPage(article: Article, score: Int, onContinue: () -> Unit) {
+    Column(
+        Modifier.fillMaxSize().background(Cream).padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(Modifier.size(104.dp).clip(CircleShape).background(Color(0xFFE7E0FF)), contentAlignment = Alignment.Center) {
+            Text(if (score == 3) "🏆" else if (score >= 2) "⭐" else "🌱", fontSize = 52.sp)
+        }
+        Spacer(Modifier.height(22.dp))
+        Text("Aprendizado concluído!", color = Ink, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
+        Text(article.title, color = Muted, fontSize = 14.sp)
+        Spacer(Modifier.height(12.dp))
+        Text("$score de 3 respostas corretas", color = Green, fontSize = 21.sp, fontWeight = FontWeight.Bold)
+        Text("+${score * 10} pontos para sua meta diária", color = Ink, fontSize = 15.sp)
+        Spacer(Modifier.height(24.dp))
+        Button(onClick = onContinue, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(17.dp)) {
+            Text("Ver meu progresso")
+        }
+    }
+}
+
+@Composable
+private fun ProgressPage(learning: LearningState, onOpenArticle: (Article) -> Unit, onBackToFeed: () -> Unit) {
+    val todayPoints = if (learning.dailyPointsDate == todayKey()) learning.dailyPoints else 0
+    val goal = 30
+    val completed = learning.completedArticles.size
+    val quizCount = learning.completedQuizzes.size
+    val categoryCount = articles.filter { learning.completedArticles.contains(it.id.toString()) }.map { it.category }.distinct().size
+    val achievements = listOf(
+        "Primeira descoberta" to (completed >= 1),
+        "Leitor curioso" to (completed >= 5),
+        "Mente afiada" to (quizCount >= 3),
+        "Explorador do conhecimento" to (categoryCount >= 4)
+    )
+    LazyColumn(
+        Modifier.fillMaxSize().background(Cream),
+        contentPadding = PaddingValues(22.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            Text("SEU CURIOMUNDO", color = Green, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp)
+            Text("Seu progresso", color = Ink, fontSize = 29.sp, fontWeight = FontWeight.ExtraBold)
+            Text("Pequenas descobertas constroem grandes conhecimentos.", color = Muted, fontSize = 14.sp)
+        }
+        item {
+            Surface(color = Green, shape = RoundedCornerShape(22.dp)) {
+                Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("Meta diária", color = Color.White.copy(alpha = .8f), fontSize = 13.sp)
+                            Text("$todayPoints de $goal pontos", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+                        }
+                        Text("🎯", fontSize = 34.sp)
+                    }
+                    LinearProgressIndicator(
+                        progress = { (todayPoints.toFloat() / goal).coerceIn(0f, 1f) },
+                        modifier = Modifier.fillMaxWidth().height(9.dp).clip(CircleShape),
+                        color = Gold,
+                        trackColor = Color.White.copy(alpha = .25f)
+                    )
+                    Text(if (todayPoints >= goal) "Meta diária concluída! Excelente trabalho." else "Ganhe 10 pontos por resposta correta.", color = Color.White, fontSize = 12.sp)
+                }
+            }
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatTile("🔥", "${learning.currentStreak}", "dias seguidos", Modifier.weight(1f))
+                StatTile("📚", "$completed", "leituras", Modifier.weight(1f))
+                StatTile("🧠", "$quizCount", "quizzes", Modifier.weight(1f))
+            }
+        }
+        item {
+            Text("Calendário de consistência", color = Ink, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text("A sequência é atualizada quando você conclui um quiz em um novo dia.", color = Muted, fontSize = 12.sp)
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(5.dp), modifier = Modifier.fillMaxWidth()) {
+                val calendar = Calendar.getInstance()
+                calendar.add(Calendar.DAY_OF_YEAR, -6)
+                repeat(7) {
+                    val key = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.time)
+                    val active = key == learning.lastActivityDate
+                    Column(
+                        Modifier.weight(1f).clip(RoundedCornerShape(10.dp))
+                            .background(if (active) Color(0xFFDDF4E9) else Paper).padding(vertical = 10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(SimpleDateFormat("EE", Locale("pt", "BR")).format(calendar.time).take(1).uppercase(), color = Muted, fontSize = 10.sp)
+                        Text(SimpleDateFormat("dd", Locale.US).format(calendar.time), color = Ink, fontWeight = FontWeight.Bold)
+                        Text(if (active) "✓" else "·", color = if (active) Color(0xFF20856A) else Muted)
+                    }
+                    calendar.add(Calendar.DAY_OF_YEAR, 1)
+                }
+            }
+        }
+        item {
+            Text("Conquistas", color = Ink, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            achievements.forEach { (title, unlocked) ->
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(15.dp))
+                        .background(if (unlocked) Color(0xFFFFF0D2) else Paper).padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(if (unlocked) "🏅" else "🔒", fontSize = 25.sp)
+                    Column(Modifier.weight(1f)) {
+                        Text(title, color = Ink, fontWeight = FontWeight.Bold)
+                        Text(if (unlocked) "Conquista desbloqueada" else "Continue lendo e respondendo quizzes", color = Muted, fontSize = 12.sp)
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+        item {
+            Text("Continue aprendendo", color = Ink, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            val next = articles.firstOrNull { !learning.completedArticles.contains(it.id.toString()) } ?: articles.first()
+            ArticleCard(next, false, { onOpenArticle(next) }, {}, false)
+            TextButton(onClick = onBackToFeed, modifier = Modifier.fillMaxWidth()) { Text("Voltar ao feed") }
+        }
+    }
+}
+
+@Composable
+private fun StatTile(emoji: String, value: String, label: String, modifier: Modifier = Modifier) {
+    Column(modifier.clip(RoundedCornerShape(16.dp)).background(Paper).padding(13.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(emoji, fontSize = 21.sp)
+        Text(value, color = Ink, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
+        Text(label, color = Muted, fontSize = 10.sp)
+    }
+}
