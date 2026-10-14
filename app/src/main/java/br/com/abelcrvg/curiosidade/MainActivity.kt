@@ -313,6 +313,7 @@ private fun CuriosaApp(
                 showAccount -> AccountScreen(
                     initialName = name,
                     initialEmail = email,
+                    isEditing = onboardingDone,
                     onBack = { showAccount = false },
                     onContinue = { newName, newEmail ->
                         name = newName
@@ -437,6 +438,7 @@ private fun InterestsScreen(
 private fun AccountScreen(
     initialName: String,
     initialEmail: String,
+    isEditing: Boolean,
     onBack: () -> Unit,
     onContinue: (String, String) -> Unit
 ) {
@@ -449,12 +451,12 @@ private fun AccountScreen(
     Column(Modifier.fillMaxSize().background(Cream)) {
         Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Voltar", tint = Ink) }
-            Text("Seu perfil", color = Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(if (isEditing) "Editar perfil" else "Seu perfil", color = Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)) {
             Text("Quase lá!", color = Green, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp)
             Spacer(Modifier.height(10.dp))
-            Text("Crie seu perfil Curiosa", color = Ink, fontSize = 30.sp, lineHeight = 36.sp, fontWeight = FontWeight.ExtraBold)
+            Text(if (isEditing) "Atualize seus dados" else "Crie seu perfil Curiosa", color = Ink, fontSize = 30.sp, lineHeight = 36.sp, fontWeight = FontWeight.ExtraBold)
             Spacer(Modifier.height(8.dp))
             Text("Seus assuntos favoritos vão orientar as recomendações. Você poderá alterá-los no perfil.", color = Muted, fontSize = 14.sp, lineHeight = 22.sp)
             Spacer(Modifier.height(22.dp))
@@ -462,13 +464,15 @@ private fun AccountScreen(
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(value = email, onValueChange = { email = it; error = "" }, modifier = Modifier.fillMaxWidth(), label = { Text("E-mail") }, singleLine = true, shape = RoundedCornerShape(14.dp))
             Spacer(Modifier.height(12.dp))
-            OutlinedTextField(value = password, onValueChange = { password = it; error = "" }, modifier = Modifier.fillMaxWidth(), label = { Text("Senha") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), shape = RoundedCornerShape(14.dp))
-            Spacer(Modifier.height(12.dp))
-            OutlinedTextField(value = confirmPassword, onValueChange = { confirmPassword = it; error = "" }, modifier = Modifier.fillMaxWidth(), label = { Text("Confirme a senha") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), shape = RoundedCornerShape(14.dp))
-            Spacer(Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(checked = acceptedTerms, onCheckedChange = { acceptedTerms = it }, colors = CheckboxDefaults.colors(checkedColor = Green))
-                Text("Li e aceito os termos e a política de privacidade.", color = Muted, fontSize = 12.sp, lineHeight = 17.sp)
+            if (!isEditing) {
+                OutlinedTextField(value = password, onValueChange = { password = it; error = "" }, modifier = Modifier.fillMaxWidth(), label = { Text("Senha") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), shape = RoundedCornerShape(14.dp))
+                Spacer(Modifier.height(12.dp))
+                OutlinedTextField(value = confirmPassword, onValueChange = { confirmPassword = it; error = "" }, modifier = Modifier.fillMaxWidth(), label = { Text("Confirme a senha") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), shape = RoundedCornerShape(14.dp))
+                Spacer(Modifier.height(12.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = acceptedTerms, onCheckedChange = { acceptedTerms = it }, colors = CheckboxDefaults.colors(checkedColor = Green))
+                    Text("Entendo que esta versão salva meu perfil somente neste aparelho.", color = Muted, fontSize = 12.sp, lineHeight = 17.sp)
+                }
             }
             if (error.isNotBlank()) {
                 Text(error, color = Color(0xFFB42318), fontSize = 12.sp)
@@ -489,9 +493,9 @@ private fun AccountScreen(
                     error = when {
                         name.trim().length < 2 -> "Informe seu nome."
                         !email.contains("@") || !email.substringAfter("@", "").contains(".") -> "Informe um e-mail válido."
-                        password.length < 8 -> "A senha precisa ter pelo menos 8 caracteres."
-                        password != confirmPassword -> "As senhas não coincidem."
-                        !acceptedTerms -> "É necessário aceitar os termos para continuar."
+                        !isEditing && password.length < 8 -> "A senha precisa ter pelo menos 8 caracteres."
+                        !isEditing && password != confirmPassword -> "As senhas não coincidem."
+                        !isEditing && !acceptedTerms -> "Confirme que entende como o perfil é armazenado nesta versão."
                         else -> ""
                     }
                     if (error.isBlank()) onContinue(name.trim(), email.trim())
@@ -499,7 +503,7 @@ private fun AccountScreen(
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Green),
                 shape = RoundedCornerShape(15.dp)
-            ) { Text("Continuar para o Curiosa", modifier = Modifier.padding(vertical = 5.dp), fontWeight = FontWeight.Bold) }
+            ) { Text(if (isEditing) "Salvar perfil" else "Continuar para o Curiosa", modifier = Modifier.padding(vertical = 5.dp), fontWeight = FontWeight.Bold) }
         }
     }
 }
