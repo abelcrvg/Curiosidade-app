@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,51 +33,224 @@ private val Cream = Color(0xFFF7F5EF)
 private val Muted = Color(0xFF6E786F)
 private val Paper = Color(0xFFFFFEFB)
 private val Gold = Color(0xFFF0B84B)
-private val categories = listOf("Todos", "Ciência", "Animais", "Espaço", "História", "Psicologia", "Tecnologia")
 
+private data class Topic(val name: String, val emoji: String, val description: String)
+private val topics = listOf(
+    Topic("Astronomia", "🌌", "Planetas, estrelas, galáxias e o Universo"),
+    Topic("Ciência", "🔬", "Descobertas, experiências e fenômenos naturais"),
+    Topic("Animais e natureza", "🐋", "Vida selvagem, ecossistemas e comportamento animal"),
+    Topic("História", "🏛️", "Civilizações, acontecimentos e personagens"),
+    Topic("Tecnologia", "🤖", "Invenções, inteligência artificial e futuro"),
+    Topic("Psicologia", "🧠", "Mente, memória, emoções e comportamento"),
+    Topic("Corpo humano", "🫀", "Anatomia, sentidos e funcionamento do corpo"),
+    Topic("Geografia e culturas", "🌍", "Países, povos, lugares e costumes"),
+    Topic("Física", "⚛️", "Energia, matéria, espaço e tempo"),
+    Topic("Oceanos", "🌊", "Mares, profundezas e vida marinha"),
+    Topic("Dinossauros e fósseis", "🦖", "Pré-história, evolução e paleontologia"),
+    Topic("Meio ambiente", "🌱", "Clima, conservação e sustentabilidade"),
+    Topic("Matemática", "➗", "Números, lógica e padrões"),
+    Topic("Filosofia", "💭", "Ideias, ética e grandes perguntas"),
+    Topic("Arqueologia", "🏺", "Vestígios, descobertas e sociedades antigas"),
+    Topic("Engenharia", "⚙️", "Como construímos, projetamos e resolvemos problemas")
+)
+
+private data class ArticleSection(val heading: String, val paragraphs: List<String>)
 private data class Article(
-    val id: Int, val title: String, val category: String, val summary: String,
-    val minutes: Int, val emoji: String, val paragraphs: List<String>, val source: String
+    val id: Int,
+    val title: String,
+    val category: String,
+    val summary: String,
+    val minutes: Int,
+    val emoji: String,
+    val intro: String,
+    val sections: List<ArticleSection>,
+    val keyTakeaways: List<String>,
+    val source: String
 )
 
 private val articles = listOf(
-    Article(1, "Por que o polvo tem três corações?", "Animais", "Uma das criaturas mais inteligentes do oceano tem um sistema circulatório surpreendente.", 4, "🐙", listOf(
-        "O polvo possui três corações. Dois bombeiam sangue para as brânquias, onde ocorre a troca de gases, enquanto o terceiro envia sangue oxigenado para o restante do corpo.",
-        "Seu sangue é azulado porque utiliza hemocianina, uma proteína que contém cobre para transportar oxigênio. Em águas frias e com pouco oxigênio, essa molécula pode ser especialmente útil.",
-        "Quando o polvo nada, o coração que abastece o corpo reduz bastante sua atividade. Por isso, rastejar pelo fundo do mar costuma exigir menos esforço do que nadar por longas distâncias.",
-        "Grande parte dos neurônios do polvo está distribuída pelos braços, que conseguem explorar o ambiente e executar movimentos complexos."
-    ), "Smithsonian Ocean — materiais sobre a biologia dos cefalópodes."),
-    Article(2, "Estamos olhando para o passado quando observamos as estrelas?", "Espaço", "A luz leva tempo para viajar. O céu é uma janela para diferentes épocas do Universo.", 5, "🌌", listOf(
-        "A luz viaja no vácuo a aproximadamente 300 mil quilômetros por segundo. Mesmo assim, as distâncias astronômicas são tão grandes que ela precisa de tempo para chegar até nós.",
-        "A luz do Sol leva cerca de oito minutos e vinte segundos para alcançar a Terra. Quando olhamos para ele, vemos a luz que saiu de sua superfície alguns minutos antes.",
-        "Se uma estrela estiver a cem anos-luz, a luz que observamos hoje partiu dela há aproximadamente cem anos. Telescópios também conseguem observar galáxias cuja luz viajou durante bilhões de anos.",
-        "A astronomia permite investigar a história cósmica: alguns objetos podem ter mudado muito desde que emitiram a luz que vemos hoje."
-    ), "NASA — materiais educativos sobre luz e observação astronômica."),
-    Article(3, "Como os romanos transportavam água sem bombas elétricas?", "História", "Aquedutos e engenharia abasteceram cidades há milhares de anos.", 5, "🏛️", listOf(
-        "Os romanos construíram aquedutos para transportar água de fontes distantes até cidades, termas e fontes públicas. Muitos trechos aproveitavam a inclinação natural do terreno.",
-        "A água descia principalmente pela força da gravidade. Os engenheiros precisavam planejar o percurso e manter uma inclinação adequada para que o fluxo funcionasse.",
-        "Nem todos os aquedutos eram pontes monumentais com arcos. Grande parte da água passava por canais subterrâneos; os arcos eram usados quando era necessário atravessar vales.",
-        "O sistema exigia manutenção constante. Sedimentos precisavam ser removidos e canais reparados, mostrando como a engenharia romana combinava planejamento e conhecimento prático."
-    ), "Encyclopaedia Britannica — verbete sobre aquedutos romanos."),
-    Article(4, "Por que sentimos que já vivemos uma situação?", "Psicologia", "O déjà-vu é uma sensação de familiaridade que a ciência continua investigando.", 4, "🧠", listOf(
-        "Déjà-vu é uma expressão francesa que significa algo como “já visto”. Ela descreve a impressão de que uma situação nova já aconteceu antes, mesmo sem uma lembrança concreta.",
-        "Uma hipótese é que o fenômeno esteja relacionado a uma diferença momentânea entre reconhecer familiaridade e recuperar uma memória específica: sentimos que conhecemos a situação, mas não sabemos de onde.",
-        "Experiências ocasionais são relatadas por muitas pessoas e, isoladamente, geralmente não indicam um problema de saúde. Ainda não existe uma única explicação para todos os casos.",
-        "Se episódios forem frequentes ou vierem acompanhados de perda de consciência, confusão ou outros sintomas neurológicos, é prudente procurar avaliação profissional."
-    ), "Cleveland Clinic — material informativo sobre déjà-vu."),
-    Article(5, "Por que o céu é azul durante o dia?", "Ciência", "A cor do céu nasce da interação entre a luz solar e a atmosfera terrestre.", 3, "🌤️", listOf(
-        "A luz do Sol parece branca, mas contém diferentes comprimentos de onda que correspondem às cores que enxergamos. Ao entrar na atmosfera, a luz interage com moléculas de gases presentes no ar.",
-        "Moléculas pequenas espalham mais intensamente os comprimentos de onda curtos. Esse processo é chamado espalhamento de Rayleigh, e a luz azul é espalhada com mais intensidade do que a vermelha.",
-        "A luz azul espalhada chega aos nossos olhos a partir de muitas direções do céu. A combinação do espectro solar com a sensibilidade dos olhos contribui para percebermos o céu predominantemente azul.",
-        "No nascer e no pôr do sol, a luz atravessa uma camada maior de atmosfera, deixando mais tons avermelhados e alaranjados na luz direta que chega até nós."
-    ), "NASA Space Place — explicação sobre a cor do céu."),
-    Article(6, "Por que o cérebro precisa dormir?", "Ciência", "O sono participa da memória, da atenção e do funcionamento do organismo.", 5, "🌙", listOf(
-        "Dormir é um processo biológico ativo. Durante a noite, o cérebro passa por diferentes estágios, incluindo fases de sono não REM e sono REM.",
-        "O sono está associado à consolidação de diferentes tipos de memória e ao aprendizado. Descansar adequadamente também ajuda a manter a atenção e a regulação emocional.",
-        "O organismo usa sinais internos e ambientais para regular o ciclo sono-vigília. A luz, os horários e a regularidade da rotina podem influenciar o relógio biológico.",
-        "As necessidades variam com a idade e entre indivíduos. Recomendações de saúde pública geralmente indicam pelo menos sete horas por noite para adultos."
-    ), "CDC — orientações gerais sobre sono saudável.")
+    Article(
+        1, "Por que o polvo tem três corações?", "Animais e natureza",
+        "O polvo combina uma circulação incomum com sentidos sofisticados e uma inteligência surpreendente.",
+        7, "🐙",
+        "Os polvos pertencem ao grupo dos cefalópodes, que também inclui lulas e sépias. Seu corpo evoluiu para a vida marinha de uma maneira muito diferente da nossa: três corações, sangue azulado e braços capazes de explorar o ambiente com grande autonomia.",
+        listOf(
+            ArticleSection("Três corações, três tarefas", listOf(
+                "Dois corações chamados branquiais bombeiam o sangue em direção às brânquias. É nas brânquias que o oxigênio dissolvido na água passa para o sistema circulatório e parte do dióxido de carbono é eliminada.",
+                "O terceiro coração, conhecido como coração sistêmico, envia o sangue oxigenado para os órgãos e tecidos. Essa divisão permite que o sangue passe primeiro pela superfície respiratória e depois seja distribuído pelo corpo.",
+                "A circulação dos cefalópodes é diferente da circulação fechada dos mamíferos em vários detalhes. O sistema precisa funcionar em um animal que se move por espaços estreitos, muda de cor e textura e pode realizar movimentos rápidos para capturar presas ou escapar de predadores."
+            )),
+            ArticleSection("Por que o sangue é azul?", listOf(
+                "O sangue do polvo utiliza hemocianina para transportar oxigênio. Essa proteína contém cobre, ao contrário da hemoglobina humana, que utiliza ferro. Quando a hemocianina se liga ao oxigênio, sua química faz o sangue adquirir uma tonalidade azulada.",
+                "A hemocianina funciona bem nas condições ambientais em que muitos cefalópodes vivem, incluindo águas frias. Isso não significa que seja universalmente superior à hemoglobina: cada sistema tem vantagens e limitações relacionadas ao ambiente e à fisiologia do animal.",
+                "O sangue azul não é exclusivo dos polvos. Outros artrópodes e moluscos também utilizam hemocianina, embora a aparência e a concentração do pigmento variem entre espécies."
+            )),
+            ArticleSection("Nadar pode ser mais cansativo do que rastejar", listOf(
+                "Quando um polvo nada por propulsão a jato, expulsa água pela cavidade do manto e pelo sifão. É uma forma rápida de deslocamento, útil em fugas, mas pode exigir bastante energia.",
+                "Durante a natação, o coração sistêmico pode reduzir muito sua atividade. Esse é um dos fatores que ajudam a explicar por que muitos polvos preferem rastejar pelo fundo quando não precisam se deslocar rapidamente.",
+                "O comportamento varia entre espécies e situações. Um polvo que procura alimento, se esconde em uma fenda ou foge de um predador enfrenta exigências físicas diferentes."
+            )),
+            ArticleSection("Uma inteligência distribuída pelos braços", listOf(
+                "Os braços dos polvos têm grande quantidade de neurônios e receptores sensoriais. Eles podem tocar, explorar, agarrar e manipular objetos, enquanto o sistema nervoso central coordena o comportamento geral.",
+                "Essa organização não significa que cada braço tenha uma mente independente. Significa que parte do processamento sensorial e motor acontece localmente, permitindo respostas rápidas e movimentos complexos.",
+                "Experimentos e observações documentaram aprendizagem, exploração de objetos, resolução de problemas e comportamentos de escape. É importante, porém, não transformar resultados específicos em afirmações exageradas sobre consciência: a inteligência animal é estudada com métodos e limites próprios."
+            )),
+            ArticleSection("Camuflagem e sobrevivência", listOf(
+                "Muitas espécies conseguem alterar a cor e a aparência da pele usando estruturas especializadas, como cromatóforos, além de modificar a textura. Essas mudanças ajudam a se esconder, confundir predadores e, em alguns contextos, comunicar sinais.",
+                "A camuflagem depende do ambiente e da espécie. Um padrão eficaz sobre rochas pode ser inadequado sobre areia. Por isso, a capacidade de ajustar rapidamente a aparência é uma vantagem importante para um animal sem concha externa rígida."
+            ))
+        ),
+        listOf("Dois corações levam sangue às brânquias; o terceiro distribui sangue pelo corpo.", "A hemocianina, que contém cobre, contribui para a cor azulada do sangue.", "Os braços têm muitos neurônios e participam ativamente da exploração e do movimento.", "A natação por propulsão a jato pode ser energeticamente exigente."),
+        "Fontes para aprofundamento: Smithsonian Ocean; Monterey Bay Aquarium; literatura científica sobre fisiologia e comportamento dos cefalópodes."
+    ),
+    Article(
+        2, "Estamos olhando para o passado quando observamos as estrelas?", "Astronomia",
+        "A luz tem velocidade finita: observar objetos distantes é receber informações que partiram deles há muito tempo.",
+        9, "🌌",
+        "Olhar para o céu noturno é olhar para diferentes momentos da história do Universo. A luz não chega instantaneamente: mesmo viajando a cerca de 300 mil quilômetros por segundo no vácuo, ela precisa de tempo para cruzar distâncias astronômicas.",
+        listOf(
+            ArticleSection("A luz também precisa de tempo", listOf(
+                "Na vida cotidiana, a luz parece instantânea porque as distâncias são pequenas em comparação com sua velocidade. Em escala cósmica, essa impressão deixa de funcionar. A luz percorre aproximadamente 300 mil quilômetros a cada segundo, mas o espaço entre os astros é imenso.",
+                "A unidade ano-luz mede distância, não tempo: é a distância que a luz percorre em um ano. Ela equivale a cerca de 9,46 trilhões de quilômetros. A unidade facilita falar de estrelas e galáxias sem escrever números enormes.",
+                "Quando dizemos que uma estrela está a cem anos-luz, queremos dizer que a luz que chega até nós levou aproximadamente cem anos para atravessar o espaço entre ela e a Terra."
+            )),
+            ArticleSection("O exemplo mais próximo: o Sol", listOf(
+                "A luz do Sol leva cerca de oito minutos e vinte segundos para chegar à Terra. Portanto, a luz solar que vemos agora saiu da superfície do Sol pouco mais de oito minutos atrás.",
+                "Se o Sol mudasse de aparência de maneira instantânea, nós só observaríamos essa mudança depois que a informação luminosa chegasse até aqui. Isso não significa que o Sol esteja atrasado ou que a observação esteja errada: é uma consequência normal da velocidade finita da luz.",
+                "A luz refletida pela Lua chega à Terra em pouco mais de um segundo. Já a comunicação com sondas espaciais pode levar minutos ou horas, dependendo da distância, porque os sinais de rádio também viajam aproximadamente à velocidade da luz."
+            )),
+            ArticleSection("Estrelas, galáxias e tempo profundo", listOf(
+                "A luz de uma estrela a cem anos-luz mostra a estrela como era quando aquela luz começou a viagem. Durante esse intervalo, a estrela pode ter mudado. Em geral, não podemos saber o estado atual de um objeto distante apenas observando a luz antiga que acabou de chegar.",
+                "Quando telescópios observam galáxias a bilhões de anos-luz, recebem luz emitida em fases muito antigas da história cósmica. Isso permite estudar como as primeiras galáxias se formaram e como as estruturas do Universo evoluíram.",
+                "A expansão do Universo torna a interpretação das distâncias cosmológicas mais complexa: em escalas muito grandes, a distância atual de uma galáxia não é simplesmente igual à distância que a luz percorreu. Astrônomos usam modelos e medidas para relacionar o desvio para o vermelho, o tempo de viagem e a expansão do espaço."
+            )),
+            ArticleSection("Ver o passado não é o mesmo que prever o futuro", listOf(
+                "A astronomia fornece observações de eventos passados, não uma fotografia em tempo real de todo o cosmos. Cada objeto observado corresponde a uma época determinada pelo tempo de viagem da luz.",
+                "Isso é uma ferramenta científica poderosa. Ao comparar objetos em diferentes distâncias, pesquisadores conseguem estudar fases diferentes da evolução estelar e galáctica. É como ter registros de vários capítulos da história cósmica disponíveis ao mesmo tempo.",
+                "Há limites: a luz pode ser absorvida, desviada ou enfraquecida, e algumas regiões são difíceis de observar diretamente. Por isso, astrônomos combinam telescópios, diferentes comprimentos de onda, modelos físicos e medições independentes."
+            ))
+        ),
+        listOf("A luz do Sol leva cerca de 8 minutos e 20 segundos até a Terra.", "Ano-luz é uma unidade de distância, não de duração.", "Objetos muito distantes são vistos como eram quando a luz observada foi emitida.", "A expansão do Universo precisa ser considerada ao interpretar distâncias cosmológicas."),
+        "Fontes para aprofundamento: NASA; European Space Agency (ESA); materiais educativos sobre velocidade da luz, anos-luz e expansão do Universo."
+    ),
+    Article(
+        3, "Como os romanos transportavam água sem bombas elétricas?", "História",
+        "Aquedutos, gravidade e manutenção permitiram abastecer cidades muito antes da engenharia moderna.",
+        8, "🏛️",
+        "A engenharia hidráulica romana não dependia de eletricidade para conduzir água. Seus aquedutos aproveitavam diferenças de altura, canais cuidadosamente planejados e uma infraestrutura que precisava de inspeção e manutenção constantes.",
+        listOf(
+            ArticleSection("A força da gravidade", listOf(
+                "A maior parte dos aquedutos transportava água de uma fonte situada em altitude superior à cidade abastecida. Ao manter uma inclinação gradual, os engenheiros permitiam que a gravidade conduzisse a água ao longo do percurso.",
+                "O canal precisava ter uma queda adequada. Uma inclinação excessiva podia aumentar a velocidade e causar danos; uma inclinação insuficiente podia prejudicar o fluxo. A escolha do trajeto dependia do relevo, da qualidade da fonte e das necessidades da população.",
+                "A engenharia não consistia apenas em construir arcos monumentais. Era necessário reconhecer nascentes, medir alturas, escavar túneis, construir canais e proteger a água de contaminações e perdas."
+            )),
+            ArticleSection("Os aquedutos não eram todos pontes gigantes", listOf(
+                "A imagem popular dos aquedutos é a de grandes fileiras de arcos de pedra. Na realidade, muitos trechos percorriam o solo, passavam por túneis ou seguiam canais pouco visíveis. Os arcos eram úteis quando era preciso atravessar vales ou manter o canal em determinada altura.",
+                "Construir uma estrutura elevada exigia materiais, mão de obra e planejamento. Por isso, os engenheiros preferiam adaptar o caminho ao terreno sempre que fosse possível, em vez de elevar todo o percurso.",
+                "A água podia ser conduzida até reservatórios e distribuída a fontes públicas, termas e outros pontos. O acesso variava conforme a cidade, a época, a posição social e as regras locais."
+            )),
+            ArticleSection("Planejamento, manutenção e administração", listOf(
+                "Um aqueduto não funcionava para sempre sem cuidados. Sedimentos podiam se acumular, paredes precisavam de reparos e vazamentos reduziam a quantidade de água entregue. A manutenção era parte essencial da infraestrutura.",
+                "A distribuição também dependia de decisões administrativas: quem recebia água, para quais usos e em quais quantidades eram questões práticas e políticas. O abastecimento público estava ligado à saúde, à vida urbana e à demonstração de poder das autoridades.",
+                "A tecnologia romana reuniu conhecimentos anteriores e soluções locais. Não se deve imaginar um único sistema idêntico em todo o Império: as estruturas variavam conforme a geografia, os recursos e o tamanho das cidades."
+            )),
+            ArticleSection("O que podemos aprender com essa engenharia?", listOf(
+                "O princípio básico continua presente em sistemas hidráulicos modernos: a diferença de pressão e de altura pode mover fluidos sem uma bomba elétrica em cada trecho. Hoje, redes de água também combinam gravidade, bombas, reservatórios, válvulas e controle de qualidade.",
+                "Os aquedutos demonstram que uma infraestrutura durável depende tanto do projeto quanto da operação. Materiais resistentes não substituem inspeção, limpeza, gestão e planejamento de longo prazo."
+            ))
+        ),
+        listOf("A gravidade era o principal motor de muitos aquedutos.", "Grande parte dos canais era subterrânea ou seguia o terreno; nem tudo era uma ponte de arcos.", "Manutenção e administração eram tão importantes quanto a construção.", "O sistema variava entre cidades e épocas."),
+        "Fontes para aprofundamento: Encyclopaedia Britannica; materiais arqueológicos sobre aquedutos romanos e abastecimento urbano na Antiguidade."
+    ),
+    Article(
+        4, "Por que sentimos que já vivemos uma situação?", "Psicologia",
+        "O déjà-vu é uma sensação de familiaridade que pode ocorrer mesmo quando não recuperamos uma lembrança correspondente.",
+        7, "🧠",
+        "Déjà-vu é uma expressão francesa que significa aproximadamente “já visto”. A pessoa reconhece uma situação como familiar, embora saiba que ela provavelmente está acontecendo pela primeira vez. A experiência é comum, mas seus mecanismos ainda são investigados.",
+        listOf(
+            ArticleSection("Familiaridade não é a mesma coisa que lembrança", listOf(
+                "A memória não funciona como uma gravação de vídeo perfeita. O cérebro combina informações sensoriais, conhecimentos anteriores, contexto e pistas para reconhecer lugares, pessoas e acontecimentos.",
+                "Uma distinção importante na pesquisa da memória é entre sentir familiaridade e recuperar detalhes específicos de uma experiência. Podemos achar um rosto conhecido sem conseguir lembrar onde o vimos; o déjà-vu pode envolver uma sensação de familiaridade sem uma lembrança que a explique.",
+                "Uma hipótese científica propõe que o fenômeno aconteça quando processos de familiaridade e de recuperação de memória não coincidem perfeitamente. Essa hipótese é útil, mas não explica necessariamente todos os episódios."
+            )),
+            ArticleSection("O contexto pode contribuir", listOf(
+                "Uma cena atual pode compartilhar a organização espacial ou alguns detalhes com uma experiência anterior, mesmo que não percebamos conscientemente a semelhança. A sensação resultante pode ser de que já estivemos naquele lugar.",
+                "Cansaço, estresse e atenção dividida são mencionados em relatos de algumas pessoas, mas isso não significa que sejam causas universais ou comprovadas em todos os casos. Experiências subjetivas são difíceis de reproduzir em laboratório.",
+                "Pesquisadores investigam o déjà-vu com relatos, tarefas experimentais e estudos sobre memória. Como o episódio costuma ser breve e inesperado, medir o fenômeno de maneira controlada é um desafio."
+            )),
+            ArticleSection("Quando é apenas uma experiência ocasional?", listOf(
+                "Um episódio breve e isolado costuma ser uma experiência comum. Por si só, o déjà-vu não permite concluir que uma pessoa tenha um transtorno, nem comprova explicações sobrenaturais ou a existência de lembranças de vidas passadas.",
+                "O contexto clínico é importante. Episódios muito frequentes ou acompanhados de confusão, alteração da consciência, movimentos involuntários ou outros sintomas neurológicos merecem avaliação profissional, pois algumas condições neurológicas podem produzir sensações de familiaridade intensa."
+            )),
+            ArticleSection("O que a ciência ainda não sabe", listOf(
+                "Não existe uma explicação única que dê conta de todos os relatos. O termo é usado para experiências que podem não ser idênticas entre si, e diferentes mecanismos podem contribuir para episódios diferentes.",
+                "A melhor atitude científica é distinguir observação de interpretação. Sentir que uma situação é familiar é um relato real da experiência subjetiva; afirmar exatamente por que aconteceu exige evidências adicionais."
+            ))
+        ),
+        listOf("Déjà-vu descreve uma sensação de familiaridade, não uma prova de que o evento já ocorreu.", "Memória e familiaridade são processos relacionados, mas não idênticos.", "As explicações científicas ainda estão em estudo.", "Sintomas neurológicos associados ou episódios frequentes justificam avaliação profissional."),
+        "Fontes para aprofundamento: Cleveland Clinic; revisões científicas sobre memória, familiaridade e déjà-vu."
+    ),
+    Article(
+        5, "Por que o céu é azul durante o dia?", "Ciência",
+        "A atmosfera espalha diferentes cores da luz solar de maneiras diferentes, fazendo o azul chegar aos nossos olhos de muitas direções.",
+        6, "🌤️",
+        "A luz solar parece branca, mas contém uma faixa de cores. Quando atravessa a atmosfera terrestre, interage com moléculas de gases e pequenas partículas. Esse processo altera a direção de parte da luz e explica por que o céu tem aparência azul em condições comuns.",
+        listOf(
+            ArticleSection("A luz branca contém muitas cores", listOf(
+                "A luz visível inclui diferentes comprimentos de onda. Em termos simplificados, a luz violeta e azul tem comprimentos de onda menores, enquanto a luz laranja e vermelha tem comprimentos de onda maiores.",
+                "Um prisma pode separar a luz branca em cores porque cada comprimento de onda se comporta de maneira um pouco diferente ao atravessar o material. A luz do Sol não é uma única cor: é uma mistura de diferentes comprimentos de onda."
+            )),
+            ArticleSection("O espalhamento de Rayleigh", listOf(
+                "As moléculas do ar são muito menores do que os comprimentos de onda da luz visível. Elas espalham a luz de comprimentos de onda mais curtos com mais intensidade do que a luz de comprimentos de onda longos. Esse processo é conhecido como espalhamento de Rayleigh.",
+                "Como a luz azul é espalhada com maior intensidade do que a vermelha, ela chega aos nossos olhos a partir de muitas direções do céu. É por isso que não vemos apenas um feixe brilhante vindo diretamente do Sol: vemos a luz espalhada pela atmosfera ao redor.",
+                "A explicação não é simplesmente que o ar “é azul”. O efeito surge da interação entre a luz que chega, as moléculas atmosféricas e a maneira como nossos olhos respondem às cores."
+            )),
+            ArticleSection("Por que o céu não parece violeta?", listOf(
+                "A luz violeta também sofre espalhamento intenso. Porém, o espectro da luz solar, a absorção de parte da radiação na atmosfera e a sensibilidade do sistema visual humano contribuem para que a percepção geral do céu seja predominantemente azul.",
+                "A percepção de cor não depende apenas da física da luz. Ela também depende dos receptores da retina e do processamento feito pelo sistema visual. Por isso, a cor percebida resulta de um encontro entre fenômeno físico e biologia."
+            )),
+            ArticleSection("Por que o pôr do sol costuma ser alaranjado?", listOf(
+                "Quando o Sol está próximo do horizonte, sua luz atravessa uma camada maior de atmosfera antes de chegar diretamente aos nossos olhos. Ao longo desse caminho, mais luz azul é espalhada para outras direções.",
+                "A luz direta que resta tende a apresentar maior proporção de tons amarelos, laranjas e vermelhos. Poeira, fumaça, gotículas e outras partículas podem modificar bastante as cores, tornando alguns pores do sol mais intensos do que outros.",
+                "Nuvens podem refletir a luz avermelhada do Sol baixo no horizonte. As cores exatas dependem das condições atmosféricas, da quantidade de partículas e da geometria entre o Sol, as nuvens e o observador."
+            ))
+        ),
+        listOf("A luz solar é uma mistura de comprimentos de onda.", "Moléculas do ar espalham comprimentos de onda curtos com mais intensidade.", "A percepção azul também depende da resposta do olho humano.", "O pôr do sol muda de cor porque a luz atravessa uma camada maior da atmosfera."),
+        "Fontes para aprofundamento: NASA Space Place; materiais educativos de física atmosférica e óptica."
+    ),
+    Article(
+        6, "Por que o cérebro precisa dormir?", "Corpo humano",
+        "O sono participa da memória, da atenção, da regulação emocional e de muitos processos de manutenção do organismo.",
+        8, "🌙",
+        "Dormir não é simplesmente desligar o cérebro. Durante o sono, a atividade cerebral muda de forma organizada e passa por diferentes estágios. O descanso adequado ajuda a manter o funcionamento físico e mental, embora a necessidade individual varie conforme a idade e outros fatores.",
+        listOf(
+            ArticleSection("O sono acontece em ciclos", listOf(
+                "Ao longo da noite, passamos por estágios de sono não REM e sono REM. Esses estágios apresentam padrões diferentes de atividade cerebral, movimento dos olhos, tônus muscular e resposta a estímulos.",
+                "Os ciclos se repetem, mas não são cópias exatas uns dos outros. A proporção de cada estágio pode mudar durante a noite, e fatores como idade, rotina, ambiente, medicamentos e condições de saúde influenciam o sono."
+            )),
+            ArticleSection("Memória e aprendizagem", listOf(
+                "O sono está relacionado à consolidação de diferentes tipos de memória. Isso significa que o cérebro pode reorganizar e estabilizar informações aprendidas durante o dia, embora os mecanismos variem conforme o tipo de memória e o estágio do sono.",
+                "Dormir pouco pode prejudicar a atenção, a velocidade de resposta, o raciocínio e a capacidade de aprender novas informações. Estudar por mais horas sacrificando repetidamente o sono pode, portanto, comprometer parte do benefício do estudo."
+            )),
+            ArticleSection("Emoções e tomada de decisões", listOf(
+                "A privação de sono pode tornar mais difícil regular emoções, lidar com frustrações e avaliar riscos. Em tarefas complexas, a pessoa também pode ter mais dificuldade para manter a concentração e perceber os próprios erros.",
+                "Os efeitos variam de pessoa para pessoa e dependem da duração e da qualidade do sono. Uma noite ruim não produz necessariamente o mesmo efeito em todos, mas a falta de sono recorrente pode afetar a saúde e a rotina."
+            )),
+            ArticleSection("O relógio biológico e a luz", listOf(
+                "O corpo usa um sistema circadiano para organizar processos ao longo de aproximadamente 24 horas. A luz é uma das pistas ambientais mais importantes para sincronizar esse relógio, junto com horários de atividade, refeições e outros sinais.",
+                "Horários relativamente regulares e um ambiente adequado podem ajudar a manter o ciclo sono-vigília. Trabalhos noturnos, mudanças frequentes de horário e exposição à luz em momentos biologicamente inadequados podem dificultar o descanso."
+            )),
+            ArticleSection("Quanto sono é suficiente?", listOf(
+                "As necessidades variam conforme a idade e as características individuais. Para a maioria dos adultos, recomendações de saúde pública indicam pelo menos sete horas de sono por noite, mas duração, regularidade e qualidade também importam.",
+                "Ronco intenso, pausas respiratórias observadas, sonolência excessiva durante o dia ou dificuldade persistente para dormir são motivos para buscar orientação profissional. Este artigo é informativo e não substitui uma avaliação individual."
+            ))
+        ),
+        listOf("O sono tem estágios diferentes que se alternam durante a noite.", "Dormir ajuda a aprendizagem e está relacionado à consolidação da memória.", "A falta de sono pode afetar atenção e regulação emocional.", "Adultos geralmente precisam de pelo menos sete horas, mas necessidades individuais variam."),
+        "Fontes para aprofundamento: Centers for Disease Control and Prevention (CDC); National Institutes of Health (NIH); materiais sobre sono e ritmos circadianos."
+    )
 )
+
+private data class LocalProfile(val name: String, val email: String, val interests: Set<String>)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,14 +259,42 @@ class MainActivity : ComponentActivity() {
         setContent {
             CuriosaApp(
                 initialFavorites = prefs.getStringSet("favorites", emptySet()) ?: emptySet(),
-                saveFavorites = { prefs.edit().putStringSet("favorites", it.toSet()).apply() }
+                initialInterests = prefs.getStringSet("interests", emptySet()) ?: emptySet(),
+                initialName = prefs.getString("profile_name", "") ?: "",
+                initialEmail = prefs.getString("profile_email", "") ?: "",
+                initialOnboardingDone = prefs.getBoolean("onboarding_done", false),
+                saveFavorites = { prefs.edit().putStringSet("favorites", it.toSet()).apply() },
+                saveProfile = { profile ->
+                    prefs.edit()
+                        .putString("profile_name", profile.name)
+                        .putString("profile_email", profile.email)
+                        .putStringSet("interests", profile.interests.toSet())
+                        .putBoolean("onboarding_done", true)
+                        .apply()
+                },
+                saveInterests = { interests -> prefs.edit().putStringSet("interests", interests.toSet()).apply() }
             )
         }
     }
 }
 
 @Composable
-private fun CuriosaApp(initialFavorites: Set<String>, saveFavorites: (Set<String>) -> Unit) {
+private fun CuriosaApp(
+    initialFavorites: Set<String>,
+    initialInterests: Set<String>,
+    initialName: String,
+    initialEmail: String,
+    initialOnboardingDone: Boolean,
+    saveFavorites: (Set<String>) -> Unit,
+    saveProfile: (LocalProfile) -> Unit,
+    saveInterests: (Set<String>) -> Unit
+) {
+    var interests by remember { mutableStateOf(initialInterests) }
+    var name by remember { mutableStateOf(initialName) }
+    var email by remember { mutableStateOf(initialEmail) }
+    var onboardingDone by remember { mutableStateOf(initialOnboardingDone) }
+    var showAccount by remember { mutableStateOf(false) }
+    var editingInterests by remember { mutableStateOf(false) }
     var tab by remember { mutableStateOf("Início") }
     var category by remember { mutableStateOf("Todos") }
     var search by remember { mutableStateOf("") }
@@ -99,29 +303,67 @@ private fun CuriosaApp(initialFavorites: Set<String>, saveFavorites: (Set<String
 
     MaterialTheme(colorScheme = lightColorScheme(primary = Green, background = Cream, surface = Paper, onSurface = Ink, secondary = Gold)) {
         Surface(Modifier.fillMaxSize(), color = Cream) {
-            val article = opened
-            if (article != null) {
-                ArticlePage(
-                    article = article,
-                    favorite = favorites.contains(article.id.toString()),
+            when {
+                !onboardingDone -> InterestsScreen(
+                    selected = interests,
+                    onToggle = { topic -> interests = if (interests.contains(topic)) interests - topic else interests + topic },
+                    onContinue = { showAccount = true },
+                    onSkip = { interests = setOf("Ciência", "Astronomia"); saveInterests(interests); showAccount = true }
+                )
+                showAccount -> AccountScreen(
+                    initialName = name,
+                    initialEmail = email,
+                    onBack = { showAccount = false },
+                    onContinue = { newName, newEmail ->
+                        name = newName
+                        email = newEmail
+                        saveProfile(LocalProfile(newName, newEmail, interests))
+                        onboardingDone = true
+                        showAccount = false
+                    }
+                )
+                editingInterests -> InterestsScreen(
+                    selected = interests,
+                    title = "Personalize seu Curiosa",
+                    subtitle = "Escolha os assuntos que você quer ver com mais frequência. Você pode mudar isso quando quiser.",
+                    onToggle = { topic -> interests = if (interests.contains(topic)) interests - topic else interests + topic },
+                    onContinue = {
+                        saveInterests(interests)
+                        saveProfile(LocalProfile(name, email, interests))
+                        editingInterests = false
+                    },
+                    onSkip = { editingInterests = false }
+                )
+                opened != null -> ArticlePage(
+                    article = opened!!,
+                    favorite = favorites.contains(opened!!.id.toString()),
                     back = { opened = null },
                     toggleFavorite = {
-                        val id = article.id.toString()
+                        val id = opened!!.id.toString()
                         favorites = if (favorites.contains(id)) favorites - id else favorites + id
                         saveFavorites(favorites)
                     },
                     openArticle = { opened = it }
                 )
-            } else {
-                HomePage(
-                    tab = tab, onTab = { tab = it }, category = category, onCategory = { category = it },
-                    search = search, onSearch = { search = it }, favorites = favorites,
+                else -> HomePage(
+                    name = name,
+                    email = email,
+                    tab = tab,
+                    onTab = { tab = it },
+                    category = category,
+                    onCategory = { category = it },
+                    search = search,
+                    onSearch = { search = it },
+                    favorites = favorites,
+                    interests = interests,
                     openArticle = { opened = it },
                     toggleFavorite = { a ->
                         val id = a.id.toString()
                         favorites = if (favorites.contains(id)) favorites - id else favorites + id
                         saveFavorites(favorites)
-                    }
+                    },
+                    onEditInterests = { editingInterests = true },
+                    onEditProfile = { showAccount = true }
                 )
             }
         }
@@ -129,12 +371,166 @@ private fun CuriosaApp(initialFavorites: Set<String>, saveFavorites: (Set<String
 }
 
 @Composable
-private fun HomePage(
-    tab: String, onTab: (String) -> Unit, category: String, onCategory: (String) -> Unit,
-    search: String, onSearch: (String) -> Unit, favorites: Set<String>,
-    openArticle: (Article) -> Unit, toggleFavorite: (Article) -> Unit
+private fun InterestsScreen(
+    selected: Set<String>,
+    title: String = "O que desperta sua curiosidade?",
+    subtitle: String = "Escolha pelo menos 3 assuntos. Vamos usar suas preferências para organizar seu feed.",
+    onToggle: (String) -> Unit,
+    onContinue: () -> Unit,
+    onSkip: () -> Unit
 ) {
-    val filtered = articles.filter { a ->
+    val valid = selected.size >= 3
+    Column(Modifier.fillMaxSize().background(Cream)) {
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 22.dp, vertical = 24.dp)) {
+            Text("C U R I O S A", color = Green, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 3.sp)
+            Spacer(Modifier.height(22.dp))
+            Text(title, color = Ink, fontSize = 31.sp, lineHeight = 37.sp, fontWeight = FontWeight.ExtraBold)
+            Spacer(Modifier.height(10.dp))
+            Text(subtitle, color = Muted, fontSize = 15.sp, lineHeight = 23.sp)
+            Spacer(Modifier.height(14.dp))
+            Text("${selected.size} selecionado(s)", color = Green, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(12.dp))
+            topics.chunked(2).forEach { pair ->
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                    pair.forEach { topic ->
+                        val isSelected = selected.contains(topic.name)
+                        Column(
+                            Modifier.weight(1f).padding(bottom = 10.dp).clip(RoundedCornerShape(18.dp))
+                                .background(if (isSelected) Color(0xFFE4EDE1) else Paper)
+                                .clickable { onToggle(topic.name) }
+                                .padding(13.dp)
+                                .heightIn(min = 112.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(topic.emoji, fontSize = 25.sp)
+                                Spacer(Modifier.weight(1f))
+                                Icon(
+                                    if (isSelected) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                    contentDescription = if (isSelected) "Selecionado" else "Selecionar",
+                                    tint = if (isSelected) Green else Color(0xFFBBC2B8),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            Text(topic.name, color = Ink, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Spacer(Modifier.height(4.dp))
+                            Text(topic.description, color = Muted, fontSize = 11.sp, lineHeight = 15.sp)
+                        }
+                    }
+                    if (pair.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            Text("Dica: marque assuntos diferentes. Seu feed vai dar prioridade a eles, mas você continuará podendo explorar todo o catálogo.", color = Muted, fontSize = 12.sp, lineHeight = 18.sp)
+        }
+        Column(Modifier.fillMaxWidth().background(Paper).padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = onContinue, enabled = valid, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Green), shape = RoundedCornerShape(15.dp)) {
+                Text("Continuar", modifier = Modifier.padding(vertical = 5.dp), fontWeight = FontWeight.Bold)
+            }
+            if (!valid) Text("Selecione mais ${3 - selected.size} assunto(s) para continuar.", color = Muted, fontSize = 12.sp)
+            TextButton(onClick = onSkip, modifier = Modifier.align(Alignment.CenterHorizontally)) { Text("Escolher depois", color = Muted) }
+        }
+    }
+}
+
+@Composable
+private fun AccountScreen(
+    initialName: String,
+    initialEmail: String,
+    onBack: () -> Unit,
+    onContinue: (String, String) -> Unit
+) {
+    var name by remember { mutableStateOf(initialName) }
+    var email by remember { mutableStateOf(initialEmail) }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var acceptedTerms by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf("") }
+    Column(Modifier.fillMaxSize().background(Cream)) {
+        Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Voltar", tint = Ink) }
+            Text("Seu perfil", color = Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        }
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)) {
+            Text("Quase lá!", color = Green, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp)
+            Spacer(Modifier.height(10.dp))
+            Text("Crie seu perfil Curiosa", color = Ink, fontSize = 30.sp, lineHeight = 36.sp, fontWeight = FontWeight.ExtraBold)
+            Spacer(Modifier.height(8.dp))
+            Text("Seus assuntos favoritos vão orientar as recomendações. Você poderá alterá-los no perfil.", color = Muted, fontSize = 14.sp, lineHeight = 22.sp)
+            Spacer(Modifier.height(22.dp))
+            OutlinedTextField(value = name, onValueChange = { name = it; error = "" }, modifier = Modifier.fillMaxWidth(), label = { Text("Como podemos chamar você?") }, singleLine = true, shape = RoundedCornerShape(14.dp))
+            Spacer(Modifier.height(12.dp))
+            OutlinedTextField(value = email, onValueChange = { email = it; error = "" }, modifier = Modifier.fillMaxWidth(), label = { Text("E-mail") }, singleLine = true, shape = RoundedCornerShape(14.dp))
+            Spacer(Modifier.height(12.dp))
+            OutlinedTextField(value = password, onValueChange = { password = it; error = "" }, modifier = Modifier.fillMaxWidth(), label = { Text("Senha") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), shape = RoundedCornerShape(14.dp))
+            Spacer(Modifier.height(12.dp))
+            OutlinedTextField(value = confirmPassword, onValueChange = { confirmPassword = it; error = "" }, modifier = Modifier.fillMaxWidth(), label = { Text("Confirme a senha") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), shape = RoundedCornerShape(14.dp))
+            Spacer(Modifier.height(12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(checked = acceptedTerms, onCheckedChange = { acceptedTerms = it }, colors = CheckboxDefaults.colors(checkedColor = Green))
+                Text("Li e aceito os termos e a política de privacidade.", color = Muted, fontSize = 12.sp, lineHeight = 17.sp)
+            }
+            if (error.isNotBlank()) {
+                Text(error, color = Color(0xFFB42318), fontSize = 12.sp)
+                Spacer(Modifier.height(6.dp))
+            }
+            Spacer(Modifier.height(8.dp))
+            Surface(color = Color(0xFFFFF0D2), shape = RoundedCornerShape(12.dp)) {
+                Row(Modifier.padding(12.dp), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFF8A5A00), modifier = Modifier.size(18.dp))
+                    Text("Esta versão é um protótipo: o perfil será salvo neste aparelho. A criação de conta segura, login entre dispositivos e recuperação de senha dependem de conectar o serviço de autenticação antes da publicação.", color = Color(0xFF73521B), fontSize = 12.sp, lineHeight = 17.sp)
+                }
+            }
+            Spacer(Modifier.height(18.dp))
+        }
+        Column(Modifier.fillMaxWidth().background(Paper).padding(18.dp)) {
+            Button(
+                onClick = {
+                    error = when {
+                        name.trim().length < 2 -> "Informe seu nome."
+                        !email.contains("@") || !email.substringAfter("@", "").contains(".") -> "Informe um e-mail válido."
+                        password.length < 8 -> "A senha precisa ter pelo menos 8 caracteres."
+                        password != confirmPassword -> "As senhas não coincidem."
+                        !acceptedTerms -> "É necessário aceitar os termos para continuar."
+                        else -> ""
+                    }
+                    if (error.isBlank()) onContinue(name.trim(), email.trim())
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Green),
+                shape = RoundedCornerShape(15.dp)
+            ) { Text("Continuar para o Curiosa", modifier = Modifier.padding(vertical = 5.dp), fontWeight = FontWeight.Bold) }
+        }
+    }
+}
+
+@Composable
+private fun HomePage(
+    name: String,
+    email: String,
+    tab: String,
+    onTab: (String) -> Unit,
+    category: String,
+    onCategory: (String) -> Unit,
+    search: String,
+    onSearch: (String) -> Unit,
+    favorites: Set<String>,
+    interests: Set<String>,
+    openArticle: (Article) -> Unit,
+    toggleFavorite: (Article) -> Unit,
+    onEditInterests: () -> Unit,
+    onEditProfile: () -> Unit
+) {
+    val orderedArticles = articles.sortedByDescending { article ->
+        when {
+            interests.contains(article.category) -> 3
+            interests.contains("Astronomia") && article.category == "Astronomia" -> 3
+            interests.contains("Ciência") && article.category == "Ciência" -> 3
+            interests.contains("Animais e natureza") && article.category == "Animais e natureza" -> 3
+            else -> 0
+        }
+    }
+    val filtered = orderedArticles.filter { a ->
         (category == "Todos" || a.category == category) &&
         (search.isBlank() || a.title.contains(search, true) || a.summary.contains(search, true) || a.category.contains(search, true)) &&
         (tab != "Salvos" || favorites.contains(a.id.toString()))
@@ -146,83 +542,171 @@ private fun HomePage(
                 NavigationBarItem(tab == "Início", { onTab("Início") }, icon = { Icon(Icons.Default.Home, null) }, label = { Text("Início") })
                 NavigationBarItem(tab == "Explorar", { onTab("Explorar") }, icon = { Icon(Icons.Default.Explore, null) }, label = { Text("Explorar") })
                 NavigationBarItem(tab == "Salvos", { onTab("Salvos") }, icon = { Icon(Icons.Default.Bookmark, null) }, label = { Text("Salvos") })
+                NavigationBarItem(tab == "Perfil", { onTab("Perfil") }, icon = { Icon(Icons.Default.Person, null) }, label = { Text("Perfil") })
             }
         }
     ) { padding ->
-        LazyColumn(
-            Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(20.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
-        ) {
-            item {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("C U R I O S A", color = Green, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
-                        Text(when (tab) { "Explorar" -> "Explore o desconhecido"; "Salvos" -> "Sua biblioteca"; else -> "O mundo é fascinante." },
-                            color = Ink, fontSize = 26.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold)
+        if (tab == "Perfil") {
+            LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(22.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                item {
+                    Text("C U R I O S A", color = Green, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 3.sp)
+                    Spacer(Modifier.height(14.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                        Box(Modifier.size(64.dp).clip(CircleShape).background(Color(0xFFE5EBDD)), contentAlignment = Alignment.Center) {
+                            Text(name.firstOrNull()?.uppercase() ?: "C", color = Green, fontSize = 27.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Column {
+                            Text(name.ifBlank { "Seu perfil" }, color = Ink, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                            Text(email, color = Muted, fontSize = 13.sp)
+                            Text("Perfil local de demonstração", color = Muted, fontSize = 11.sp)
+                        }
                     }
-                    Box(Modifier.size(48.dp).clip(CircleShape).background(Color(0xFFE5EBDD)), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Lightbulb, "Curiosidade", tint = Green, modifier = Modifier.size(26.dp))
+                }
+                item {
+                    Text("Seus interesses", color = Ink, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(6.dp))
+                    if (interests.isEmpty()) Text("Você ainda não escolheu assuntos.", color = Muted)
+                    else FlowInterestChips(interests)
+                    Spacer(Modifier.height(10.dp))
+                    OutlinedButton(onClick = onEditInterests, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
+                        Icon(Icons.Default.Tune, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Editar interesses")
+                    }
+                }
+                item {
+                    Text("Sua experiência", color = Ink, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                    ProfileOption("Artigos salvos", "Acesse seus favoritos", Icons.Default.Bookmark) { onTab("Salvos") }
+                    ProfileOption("Editar dados do perfil", "Nome e e-mail", Icons.Default.ManageAccounts, onEditProfile)
+                    ProfileOption("Personalização", "Escolha os assuntos do seu feed", Icons.Default.Tune, onEditInterests)
+                }
+                item {
+                    Surface(color = Color(0xFFFFF0D2), shape = RoundedCornerShape(12.dp)) {
+                        Text("Atenção: a autenticação online ainda não foi conectada. Este perfil de protótipo fica neste aparelho e não deve ser tratado como uma conta segura para publicação.", Modifier.padding(12.dp), color = Color(0xFF73521B), fontSize = 12.sp, lineHeight = 18.sp)
                     }
                 }
             }
-            item {
-                OutlinedTextField(
-                    value = search, onValueChange = onSearch, modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("O que você quer descobrir?") },
-                    leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true,
-                    shape = RoundedCornerShape(18.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Green, unfocusedBorderColor = Color(0xFFE0E3DA), focusedContainerColor = Paper, unfocusedContainerColor = Paper)
-                )
-            }
-            if (tab == "Início" && search.isBlank()) {
+        } else {
+            LazyColumn(
+                Modifier.fillMaxSize().padding(padding),
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(17.dp)
+            ) {
                 item {
-                    Column(
-                        Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Green)
-                            .clickable { openArticle(articles[4]) }.padding(22.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Text("✦  CURIOSIDADE DO DIA", color = Color(0xFFE3EBD9), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        Text("Por que o céu é azul?", color = Color.White, fontSize = 25.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold)
-                        Text("Descubra o que a luz faz ao atravessar nossa atmosfera.", color = Color(0xFFE3EBD9), fontSize = 14.sp)
-                        Text("Descobrir agora  →", color = Gold, fontWeight = FontWeight.SemiBold)
-                    }
-                }
-            }
-            if ((tab == "Explorar" || tab == "Início") && search.isBlank()) {
-                item {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("Explore por assunto", color = Ink, fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            items(categories) { c ->
-                                FilterChip(
-                                    selected = category == c, onClick = { onCategory(c) }, label = { Text(c) },
-                                    shape = RoundedCornerShape(50.dp),
-                                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Green, selectedLabelColor = Color.White)
-                                )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("C U R I O S A", color = Green, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp)
+                            Text(
+                                when (tab) { "Explorar" -> "Explore o desconhecido"; "Salvos" -> "Sua biblioteca"; else -> if (name.isNotBlank()) "Olá, ${name.substringBefore(" ")}." else "O mundo é fascinante." },
+                                color = Ink, fontSize = 26.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold
+                            )
+                        }
+                        IconButton(onClick = onEditProfile) {
+                            Box(Modifier.size(42.dp).clip(CircleShape).background(Color(0xFFE5EBDD)), contentAlignment = Alignment.Center) {
+                                Text(name.firstOrNull()?.uppercase() ?: "C", color = Green, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             }
                         }
                     }
                 }
-            }
-            item {
-                Text(when (tab) { "Salvos" -> "Artigos salvos"; "Explorar" -> "Conhecimento para explorar"; else -> "Continue descobrindo" },
-                    color = Ink, fontSize = 19.sp, fontWeight = FontWeight.Bold)
-            }
-            if (filtered.isEmpty()) {
                 item {
-                    Column(Modifier.fillMaxWidth().padding(vertical = 30.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(if (tab == "Salvos") "🔖" else "🔎", fontSize = 36.sp)
-                        Text(if (tab == "Salvos") "Nenhum artigo salvo ainda" else "Nenhum artigo encontrado", color = Ink, fontWeight = FontWeight.Bold)
-                        Text("Explore os conteúdos e guarde seus favoritos.", color = Muted)
+                    OutlinedTextField(
+                        value = search, onValueChange = onSearch, modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("O que você quer descobrir?") },
+                        leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true,
+                        shape = RoundedCornerShape(18.dp),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Green, unfocusedBorderColor = Color(0xFFE0E3DA), focusedContainerColor = Paper, unfocusedContainerColor = Paper)
+                    )
+                }
+                if (tab == "Início" && search.isBlank()) {
+                    item {
+                        Column(
+                            Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Green)
+                                .clickable { openArticle(articles[1]) }.padding(22.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text("✦  DESTAQUE PARA VOCÊ", color = Color(0xFFE3EBD9), fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                            Text(if (interests.contains("Astronomia")) "Estamos olhando para o passado?" else "O mundo é fascinante.", color = Color.White, fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold)
+                            Text("Artigos aprofundados para entender como as coisas funcionam.", color = Color(0xFFE3EBD9), fontSize = 14.sp)
+                            Text("Ler artigo completo  →", color = Gold, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("Feito para seus interesses", color = Ink, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                            if (interests.isEmpty()) Text("Escolha temas no seu perfil para personalizar o feed.", color = Muted, fontSize = 12.sp)
+                            else LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(interests.toList()) { topic ->
+                                    Surface(color = Color(0xFFE4EDE1), shape = RoundedCornerShape(50.dp)) {
+                                        Text(topic, Modifier.padding(horizontal = 12.dp, vertical = 8.dp), color = Green, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-            } else {
-                items(filtered, key = { it.id }) { a ->
-                    ArticleCard(a, favorites.contains(a.id.toString()), { openArticle(a) }, { toggleFavorite(a) })
+                if ((tab == "Explorar" || tab == "Início") && search.isBlank()) {
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Text("Explore por assunto", color = Ink, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(listOf("Todos") + articles.map { it.category }.distinct()) { c ->
+                                    FilterChip(
+                                        selected = category == c, onClick = { onCategory(c) }, label = { Text(c) },
+                                        shape = RoundedCornerShape(50.dp),
+                                        colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Green, selectedLabelColor = Color.White)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                item {
+                    Text(when (tab) { "Salvos" -> "Artigos salvos"; "Explorar" -> "Conhecimento para explorar"; else -> "Continue descobrindo" },
+                        color = Ink, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                }
+                if (filtered.isEmpty()) {
+                    item {
+                        Column(Modifier.fillMaxWidth().padding(vertical = 30.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(if (tab == "Salvos") "🔖" else "🔎", fontSize = 36.sp)
+                            Text(if (tab == "Salvos") "Nenhum artigo salvo ainda" else "Nenhum artigo encontrado", color = Ink, fontWeight = FontWeight.Bold)
+                            Text("Explore os conteúdos e guarde seus favoritos.", color = Muted)
+                        }
+                    }
+                } else {
+                    items(filtered, key = { it.id }) { a ->
+                        ArticleCard(a, favorites.contains(a.id.toString()), { openArticle(a) }, { toggleFavorite(a) })
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun FlowInterestChips(interests: Set<String>) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        interests.chunked(2).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                row.forEach { item ->
+                    Surface(color = Color(0xFFE4EDE1), shape = RoundedCornerShape(50.dp)) {
+                        Text(item, Modifier.padding(horizontal = 10.dp, vertical = 7.dp), color = Green, fontSize = 12.sp)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProfileOption(title: String, subtitle: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Paper).clickable(onClick = onClick).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, null, tint = Green, modifier = Modifier.size(23.dp))
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(title, color = Ink, fontWeight = FontWeight.SemiBold)
+            Text(subtitle, color = Muted, fontSize = 12.sp)
+        }
+        Icon(Icons.Default.ChevronRight, null, tint = Muted)
     }
 }
 
@@ -257,9 +741,9 @@ private fun ArticlePage(article: Article, favorite: Boolean, back: () -> Unit, t
     Scaffold(
         containerColor = Cream,
         topBar = {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().background(Cream).padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = back) { Icon(Icons.Default.ArrowBack, "Voltar", tint = Ink) }
-                Text("Leitura", Modifier.weight(1f), color = Ink, fontWeight = FontWeight.SemiBold)
+                Text("Leitura aprofundada", Modifier.weight(1f), color = Ink, fontWeight = FontWeight.SemiBold)
                 IconButton(onClick = toggleFavorite) {
                     Icon(if (favorite) Icons.Default.Bookmark else Icons.Default.BookmarkBorder, "Salvar", tint = Green)
                 }
@@ -272,27 +756,49 @@ private fun ArticlePage(article: Article, favorite: Boolean, back: () -> Unit, t
             verticalArrangement = Arrangement.spacedBy(17.dp)
         ) {
             item {
-                Box(Modifier.fillMaxWidth().height(160.dp).clip(RoundedCornerShape(26.dp)).background(Green), contentAlignment = Alignment.Center) {
-                    Text(article.emoji, fontSize = 76.sp)
+                Box(Modifier.fillMaxWidth().height(170.dp).clip(RoundedCornerShape(26.dp)).background(Green), contentAlignment = Alignment.Center) {
+                    Text(article.emoji, fontSize = 78.sp)
                 }
             }
             item {
-                Text(article.category.uppercase(), color = Green, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(article.category.uppercase(), color = Green, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
                 Spacer(Modifier.height(7.dp))
                 Text(article.title, color = Ink, fontSize = 29.sp, lineHeight = 35.sp, fontWeight = FontWeight.ExtraBold)
                 Spacer(Modifier.height(10.dp))
                 Text(article.summary, color = Muted, fontSize = 16.sp, lineHeight = 24.sp)
                 Spacer(Modifier.height(8.dp))
-                Text(article.minutes.toString() + " minutos de leitura", color = Muted, fontSize = 12.sp)
+                Text("${article.minutes} minutos de leitura • Artigo aprofundado", color = Muted, fontSize = 12.sp)
+                Spacer(Modifier.height(8.dp))
+                Text(article.intro, color = Ink, fontSize = 17.sp, lineHeight = 28.sp)
             }
-            items(article.paragraphs) { paragraph ->
-                Text(paragraph, color = Ink, fontSize = 17.sp, lineHeight = 28.sp)
+            items(article.sections) { section ->
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(section.heading, color = Ink, fontSize = 21.sp, lineHeight = 27.sp, fontWeight = FontWeight.Bold)
+                    section.paragraphs.forEach { paragraph ->
+                        Text(paragraph, color = Ink, fontSize = 17.sp, lineHeight = 29.sp)
+                    }
+                }
             }
             item {
-                HorizontalDivider(color = Color(0xFFE1E4DA))
-                Text("FONTES PARA SABER MAIS", color = Green, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(6.dp))
-                Text(article.source, color = Muted, fontSize = 13.sp, lineHeight = 20.sp)
+                Surface(color = Color(0xFFE4EDE1), shape = RoundedCornerShape(18.dp)) {
+                    Column(Modifier.padding(17.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("O que você precisa lembrar", color = Green, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                        article.keyTakeaways.forEach { takeaway ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(9.dp), verticalAlignment = Alignment.Top) {
+                                Icon(Icons.Default.CheckCircle, null, tint = Green, modifier = Modifier.size(18.dp))
+                                Text(takeaway, color = Ink, fontSize = 14.sp, lineHeight = 21.sp)
+                            }
+                        }
+                    }
+                }
+            }
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    HorizontalDivider(color = Color(0xFFE1E4DA))
+                    Text("FONTES E LEITURA COMPLEMENTAR", color = Green, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp)
+                    Text(article.source, color = Muted, fontSize = 13.sp, lineHeight = 21.sp)
+                    Text("Nota editorial: o Curiosa deve revisar e validar as referências de cada artigo antes de disponibilizar a versão comercial.", color = Muted, fontSize = 11.sp, lineHeight = 17.sp)
+                }
             }
             item { Text("Continue descobrindo", color = Ink, fontSize = 20.sp, fontWeight = FontWeight.Bold) }
             items(articles.filter { it.id != article.id }.take(2)) { related ->
