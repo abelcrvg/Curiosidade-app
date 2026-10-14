@@ -409,7 +409,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun CuriosaApp(
+private fun CurioMundoApp(
     initialFavorites: Set<String>,
     initialInterests: Set<String>,
     initialName: String,
