@@ -304,7 +304,7 @@ private fun CuriosaApp(
     MaterialTheme(colorScheme = lightColorScheme(primary = Green, background = Cream, surface = Paper, onSurface = Ink, secondary = Gold)) {
         Surface(Modifier.fillMaxSize(), color = Cream) {
             when {
-                !onboardingDone -> InterestsScreen(
+                !onboardingDone && !showAccount -> InterestsScreen(
                     selected = interests,
                     onToggle = { topic -> interests = if (interests.contains(topic)) interests - topic else interests + topic },
                     onContinue = { showAccount = true },
