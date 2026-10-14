@@ -778,6 +778,20 @@ private fun HomePage(
                         }
                     }
                 }
+                if (tab == "Início" && search.isBlank()) {
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Text("Conheça os guias do CurioMundo", color = Ink, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                            Text("Cada personagem acompanha você por um universo de descobertas.", color = Muted, fontSize = 12.sp)
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                item { MascotCard("🐙", "Octo", "Oceanos", Color(0xFFE8E0FF)) }
+                                item { MascotCard("🪐", "Cosmo", "Astronomia", Color(0xFFDDF5F2)) }
+                                item { MascotCard("🦖", "Dino", "Pré-história", Color(0xFFFFEBCB)) }
+                                item { MascotCard("🤖", "Byte", "Tecnologia", Color(0xFFE5E9FF)) }
+                            }
+                        }
+                    }
+                }
                 if ((tab == "Explorar" || tab == "Início") && search.isBlank()) {
                     item {
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -841,6 +855,21 @@ private fun ProfileOption(title: String, subtitle: String, icon: androidx.compos
             Text(subtitle, color = Muted, fontSize = 12.sp)
         }
         Icon(Icons.Default.ChevronRight, null, tint = Muted)
+    }
+}
+
+@Composable
+private fun MascotCard(emoji: String, name: String, subject: String, tint: Color) {
+    Column(
+        Modifier.width(116.dp).clip(RoundedCornerShape(20.dp)).background(tint).padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Box(Modifier.size(68.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.72f)), contentAlignment = Alignment.Center) {
+            Text(emoji, fontSize = 39.sp)
+        }
+        Text(name, color = Ink, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold)
+        Text(subject, color = Muted, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
