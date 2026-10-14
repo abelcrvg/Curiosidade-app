@@ -455,7 +455,7 @@ private fun CuriosaApp(
                 )
                 editingInterests -> InterestsScreen(
                     selected = interests,
-                    title = "Personalize seu Curiosa",
+                    title = "Personalize seu CurioMundo",
                     subtitle = "Escolha os assuntos que você quer ver com mais frequência. Você pode mudar isso quando quiser.",
                     onToggle = { topic -> interests = if (interests.contains(topic)) interests - topic else interests + topic },
                     onContinue = {
@@ -586,7 +586,7 @@ private fun AccountScreen(
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)) {
             Text("Quase lá!", color = Green, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp)
             Spacer(Modifier.height(10.dp))
-            Text(if (isEditing) "Atualize seus dados" else "Crie seu perfil Curiosa", color = Ink, fontSize = 30.sp, lineHeight = 36.sp, fontWeight = FontWeight.ExtraBold)
+            Text(if (isEditing) "Atualize seus dados" else "Crie seu perfil CurioMundo", color = Ink, fontSize = 30.sp, lineHeight = 36.sp, fontWeight = FontWeight.ExtraBold)
             Spacer(Modifier.height(8.dp))
             Text("Seus assuntos favoritos vão orientar as recomendações. Você poderá alterá-los no perfil.", color = Muted, fontSize = 14.sp, lineHeight = 22.sp)
             Spacer(Modifier.height(22.dp))
@@ -633,7 +633,7 @@ private fun AccountScreen(
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Green),
                 shape = RoundedCornerShape(15.dp)
-            ) { Text(if (isEditing) "Salvar perfil" else "Continuar para o Curiosa", modifier = Modifier.padding(vertical = 5.dp), fontWeight = FontWeight.Bold) }
+            ) { Text(if (isEditing) "Salvar perfil" else "Continuar para o CurioMundo", modifier = Modifier.padding(vertical = 5.dp), fontWeight = FontWeight.Bold) }
         }
     }
 }
@@ -960,7 +960,7 @@ private fun ArticlePage(article: Article, favorite: Boolean, back: () -> Unit, t
                     HorizontalDivider(color = Color(0xFFE1E4DA))
                     Text("FONTES E LEITURA COMPLEMENTAR", color = Green, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp)
                     Text(article.source, color = Muted, fontSize = 13.sp, lineHeight = 21.sp)
-                    Text("Nota editorial: o Curiosa deve revisar e validar as referências de cada artigo antes de disponibilizar a versão comercial.", color = Muted, fontSize = 11.sp, lineHeight = 17.sp)
+                    Text("Nota editorial: o CurioMundo deve revisar e validar as referências de cada artigo antes de disponibilizar a versão comercial.", color = Muted, fontSize = 11.sp, lineHeight = 17.sp)
                 }
             }
             item { Text("Continue descobrindo", color = Ink, fontSize = 20.sp, fontWeight = FontWeight.Bold) }
