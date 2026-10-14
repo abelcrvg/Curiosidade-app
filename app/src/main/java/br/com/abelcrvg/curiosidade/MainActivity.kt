@@ -1266,7 +1266,7 @@ private fun ProgressPage(learning: LearningState, onOpenArticle: (Article) -> Un
         item {
             Text("Continue aprendendo", color = Ink, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             val next = articles.firstOrNull { !learning.completedArticles.contains(it.id.toString()) } ?: articles.first()
-            ArticleCard(next, false, { onOpenArticle(next) }, {}, false)
+            ArticleCard(next, false, { onOpenArticle(next) }, {})
             TextButton(onClick = onBackToFeed, modifier = Modifier.fillMaxWidth()) { Text("Voltar ao feed") }
         }
     }
