@@ -485,10 +485,16 @@ private fun CurioMundoApp(
 
     fun markArticleRead(article: Article) {
         persistLearning(learning.copy(completedArticles = learning.completedArticles + article.id.toString()))
+        opened = null
         quizArticle = article
     }
 
     fun finishQuiz(article: Article, score: Int) {
+        if (learning.completedQuizzes.contains(article.id.toString())) {
+            quizArticle = null
+            quizResult = article to score
+            return
+        }
         val today = todayKey()
         val newStreak = when {
             learning.lastActivityDate == today -> learning.currentStreak.coerceAtLeast(1)
@@ -1052,7 +1058,7 @@ private fun ArticlePage(article: Article, favorite: Boolean, back: () -> Unit, t
 private fun QuizPage(article: Article, onBack: () -> Unit, onFinish: (Int) -> Unit) {
     val questions = remember(article.id) {
         article.keyTakeaways.take(3).map { correct ->
-            val wrong = articles.filter { it.id != article.id }.flatMap { it.keyTakeaways }.filter { it != correct }.take(2)
+            val wrong = articles.filter { it.id != article.id }.flatMap { it.keyTakeaways }.filter { it != correct }.distinct().take(2)
             QuizQuestion("Qual afirmação está de acordo com o artigo?", correct, (listOf(correct) + wrong).shuffled())
         }
     }
