@@ -27,12 +27,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val Ink = Color(0xFF18251F)
-private val Green = Color(0xFF276749)
-private val Cream = Color(0xFFF7F5EF)
-private val Muted = Color(0xFF6E786F)
-private val Paper = Color(0xFFFFFEFB)
-private val Gold = Color(0xFFF0B84B)
+private val Ink = Color(0xFF19213D)
+private val Green = Color(0xFF693EE8)
+private val Cream = Color(0xFFF6F4FF)
+private val Muted = Color(0xFF6D7185)
+private val Paper = Color(0xFFFFFFFF)
+private val Gold = Color(0xFFFFB84A)
 
 private data class Topic(val name: String, val emoji: String, val description: String)
 private val topics = listOf(
@@ -247,6 +247,136 @@ private val articles = listOf(
         ),
         listOf("O sono tem estágios diferentes que se alternam durante a noite.", "Dormir ajuda a aprendizagem e está relacionado à consolidação da memória.", "A falta de sono pode afetar atenção e regulação emocional.", "Adultos geralmente precisam de pelo menos sete horas, mas necessidades individuais variam."),
         "Fontes para aprofundamento: Centers for Disease Control and Prevention (CDC); National Institutes of Health (NIH); materiais sobre sono e ritmos circadianos."
+    ),
+    Article(
+        7, "Como as abelhas indicam onde há alimento?", "Animais e natureza",
+        "A dança das abelhas é uma forma de comunicação que transmite informações sobre a localização de recursos.",
+        8, "🐝",
+        "Uma colmeia depende de milhares de decisões coordenadas. Abelhas campeiras deixam a colônia em busca de néctar, pólen, água e resinas; quando encontram recursos, precisam transmitir informações úteis às outras trabalhadoras. Em determinadas espécies, a dança é uma das ferramentas dessa comunicação.",
+        listOf(
+            ArticleSection("A dança em forma de oito", listOf(
+                "Em abelhas melíferas, a dança do requebrado pode incluir uma sequência em que a abelha se move em linha, balança o abdômen e retorna por uma curva, formando um padrão semelhante a um oito. A duração e a orientação do trecho central ajudam a codificar informações sobre o recurso encontrado.",
+                "A dança não é uma linguagem humana em miniatura. É um sistema de sinais evoluído, com regras próprias, que outras abelhas conseguem interpretar junto de cheiros, sons, contato físico e informações do ambiente.",
+                "Nem todas as abelhas sem ferrão usam exatamente o mesmo sistema de comunicação. A diversidade de espécies significa que não devemos generalizar um comportamento observado em abelhas melíferas para todos os grupos."
+            )),
+            ArticleSection("Direção e distância", listOf(
+                "Na dança de abelhas melíferas, a orientação do trecho de requebrado em relação à vertical do favo se relaciona com o ângulo entre a fonte de alimento e a direção do Sol. A abelha que observa a dança pode usar essa informação como uma indicação de rumo.",
+                "A duração e outras características do movimento podem indicar aproximadamente a distância. A precisão depende da espécie, da experiência da abelha, das condições do ambiente e da qualidade do recurso; não se trata de coordenadas exatas como as de um mapa digital.",
+                "Como a posição aparente do Sol muda ao longo do dia, as abelhas também precisam integrar referências temporais e visuais. A comunicação funciona dentro de um conjunto de capacidades sensoriais e comportamentais."
+            )),
+            ArticleSection("Cheiro, memória e escolha coletiva", listOf(
+                "Além do movimento, o odor associado às flores pode ajudar as campeiras a reconhecer o tipo de recurso procurado. A informação visual da dança e as pistas químicas se complementam, reduzindo a chance de a colônia depender de um único sinal.",
+                "As abelhas não obedecem mecanicamente a uma única dançarina. Várias exploradoras podem encontrar recursos diferentes, e as condições da paisagem mudam. A atividade coletiva emerge da interação entre muitas decisões individuais e o ambiente.",
+                "A dança também é um exemplo importante para a ciência do comportamento: pesquisadores conseguem alterar experimentalmente pistas e observar como outras abelhas respondem, testando hipóteses sobre a forma como a informação é codificada."
+            )),
+            ArticleSection("Por que essa comunicação importa?", listOf(
+                "Encontrar alimento pode ser caro em energia e tempo. Uma indicação confiável permite que outras campeiras visitem áreas promissoras sem repetir toda a busca às cegas.",
+                "A eficiência depende do contexto ecológico. A disponibilidade de flores, a distância até os recursos, o clima e a competição com outros polinizadores influenciam o valor de uma descoberta.",
+                "A dança mostra como a comunicação animal pode ser sofisticada sem usar palavras. Ela também reforça a importância de preservar habitats diversos, porque a colônia precisa de recursos florais ao longo do tempo."
+            ))
+        ),
+        listOf("A dança do requebrado pode transmitir pistas sobre direção e distância.", "Cheiros e outros sinais complementam os movimentos.", "Nem todas as espécies de abelhas usam o mesmo sistema.", "A comunicação ajuda a colônia a explorar recursos de forma eficiente."),
+        "Fontes para aprofundamento: Smithsonian National Zoo; materiais da University of California sobre comunicação de abelhas; revisões científicas sobre dança de recrutamento em Apis mellifera."
+    ),
+    Article(
+        8, "O que realmente acontece perto de um buraco negro?", "Astronomia",
+        "A gravidade extrema altera trajetórias, o tempo observado e o destino da matéria que se aproxima demais.",
+        10, "🪐",
+        "Buracos negros são regiões em que a gravidade é tão intensa que, dentro de uma fronteira chamada horizonte de eventos, nada consegue escapar para o exterior, nem mesmo a luz. Eles não são aspiradores cósmicos que sugam automaticamente tudo ao redor: a influência gravitacional depende da massa e da distância, como ocorre com outros objetos.",
+        listOf(
+            ArticleSection("Como um buraco negro se forma", listOf(
+                "Alguns buracos negros se formam quando o núcleo de uma estrela muito massiva deixa de sustentar a pressão necessária contra a gravidade. O resultado depende da massa inicial, da perda de matéria e de outros processos durante a evolução estelar.",
+                "Existem também buracos negros supermassivos nos centros de muitas galáxias, incluindo a Via Láctea. A origem e o crescimento desses objetos envolvem questões ainda estudadas, como a formação de sementes iniciais, fusões e acreção de matéria ao longo de bilhões de anos.",
+                "Não é correto afirmar que toda estrela termina como um buraco negro. Muitas estrelas deixam remanescentes como anãs brancas ou estrelas de nêutrons; a formação de um buraco negro exige condições específicas."
+            )),
+            ArticleSection("O horizonte de eventos", listOf(
+                "O horizonte de eventos é uma fronteira causal: depois de cruzá-la para dentro, nenhuma trajetória futura pode levar um sinal de volta a um observador distante. Ele não é necessariamente uma superfície sólida e não funciona como uma casca material.",
+                "Para um buraco negro simples e sem rotação, o tamanho característico do horizonte cresce com a massa. Isso significa que buracos negros mais massivos podem ter horizontes maiores, embora a densidade média calculada dentro desse raio não se comporte como a intuição cotidiana sugere.",
+                "O que ocorre no interior exige a relatividade geral e provavelmente uma teoria mais completa que inclua efeitos quânticos. As equações clássicas indicam regiões onde a descrição matemática deixa de ser suficiente, e não temos observações diretas de tudo o que se passa lá dentro."
+            )),
+            ArticleSection("Disco de acreção e jatos", listOf(
+                "O material que cai em direção a um buraco negro normalmente possui movimento lateral. Em vez de cair em linha reta, pode formar um disco de acreção, no qual gás e poeira orbitam, colidem e aquecem enquanto perdem energia e momento angular.",
+                "O disco pode emitir radiação intensa, especialmente quando a matéria atinge temperaturas muito elevadas. Em alguns sistemas, campos magnéticos e processos ligados à rotação ajudam a produzir jatos de partículas que viajam a velocidades próximas à da luz.",
+                "A radiação observada frequentemente vem do material ao redor do buraco negro, não do interior do horizonte. É por isso que certos buracos negros podem ser detectados indiretamente mesmo quando a região central não emite luz que consiga escapar."
+            )),
+            ArticleSection("O tempo e a observação", listOf(
+                "Na relatividade geral, a gravidade está relacionada à geometria do espaço-tempo. Para um observador distante, sinais emitidos perto do horizonte podem chegar cada vez mais enfraquecidos e com maior desvio para o vermelho, tornando a região difícil de observar.",
+                "Isso não deve ser interpretado como se uma pessoa que cai necessariamente percebesse o próprio relógio parar no horizonte. A descrição depende do observador e das coordenadas usadas; para um buraco negro suficientemente grande, cruzar o horizonte não precisa produzir uma sensação local especial naquele instante.",
+                "Astrônomos estudam esses objetos por meio do movimento de estrelas e gás, da radiação emitida pela matéria aquecida, de ondas gravitacionais produzidas por fusões e de imagens da região próxima ao horizonte obtidas por redes de radiotelescópios."
+            )),
+            ArticleSection("Eles são perigosos para tudo ao redor?", listOf(
+                "A grandes distâncias, um buraco negro exerce gravidade como qualquer objeto com a mesma massa. Se o Sol fosse substituído, hipoteticamente, por um buraco negro com a mesma massa, os planetas não seriam automaticamente sugados; a órbita terrestre continuaria aproximadamente a mesma, embora a Terra perdesse a luz e o calor solares.",
+                "O perigo cresce quando a aproximação é extrema, devido às forças de maré, à radiação do material em acreção e às condições locais. O ambiente de cada buraco negro é diferente, e muitos não estão consumindo matéria em ritmo elevado.",
+                "Buracos negros são laboratórios naturais para testar teorias físicas em condições extremas. Apesar dos avanços observacionais, várias perguntas permanecem abertas, especialmente sobre a relação entre gravidade e mecânica quântica."
+            ))
+        ),
+        listOf("O horizonte de eventos é a fronteira a partir da qual não há retorno para sinais enviados ao exterior.", "Buracos negros não sugam automaticamente objetos distantes.", "A matéria ao redor pode formar um disco quente e emitir radiação.", "Ondas gravitacionais e movimentos estelares ajudam a estudá-los."),
+        "Fontes para aprofundamento: NASA; Event Horizon Telescope; European Southern Observatory (ESO); materiais de relatividade geral e ondas gravitacionais."
+    ),
+    Article(
+        9, "Por que a água do mar é salgada?", "Oceanos",
+        "Sais dissolvidos chegam ao oceano por processos geológicos, enquanto a água circula pelo planeta.",
+        8, "🌊",
+        "A água do mar contém uma mistura de sais dissolvidos, principalmente íons de sódio e cloreto. A salinidade não surgiu de uma única fonte ou em um único momento: ela resulta de processos geológicos, químicos e hidrológicos que atuam em escalas de tempo muito longas.",
+        listOf(
+            ArticleSection("O papel das rochas e dos rios", listOf(
+                "A água da chuva interage com a atmosfera e com as rochas. Ao longo do tempo, o intemperismo químico libera íons minerais que podem ser transportados por córregos e rios até o oceano.",
+                "Os rios levam diversos elementos dissolvidos, mas a composição não é igual em todos os lugares. Ela depende das rochas da região, do clima, da vegetação, do solo e do tempo que a água permanece em contato com os materiais.",
+                "O oceano recebe sais por mais de um caminho. A erosão continental é importante, mas processos hidrotermais no fundo do mar, reações entre água e rochas e outras fontes também participam do balanço químico global."
+            )),
+            ArticleSection("Por que o sal não desaparece quando a água evapora?", listOf(
+                "Quando a água do mar evapora, as moléculas de água passam para a atmosfera, mas a maior parte dos sais dissolvidos permanece no oceano. Depois, a água retorna por precipitação e escoamento, enquanto muitos íons continuam dissolvidos.",
+                "Esse ciclo contribui para concentrar sais ao longo do tempo, mas não significa que a salinidade aumente sem limite. Minerais também são removidos por processos como precipitação química, formação de sedimentos, interação com a crosta oceânica e incorporação em organismos.",
+                "A salinidade média dos oceanos resulta de um equilíbrio dinâmico entre entradas e saídas. O tempo de permanência de cada íon varia bastante: alguns são removidos ou reciclados mais rapidamente do que outros."
+            )),
+            ArticleSection("Todos os mares têm a mesma salinidade?", listOf(
+                "Não. Evaporação intensa tende a elevar a salinidade quando não é compensada por chuva ou entrada de água doce. Regiões com muita precipitação, degelo ou descarga de rios podem apresentar salinidade menor, sobretudo perto da superfície.",
+                "Em mares parcialmente isolados, a circulação com o oceano aberto também faz diferença. O Mar Vermelho, por exemplo, apresenta salinidade relativamente elevada em parte por causa da forte evaporação e do balanço entre entrada e saída de água.",
+                "A salinidade influencia a densidade da água e, junto com a temperatura, participa da circulação oceânica. Essa circulação redistribui calor e nutrientes e afeta o clima, os ecossistemas e as condições de vida marinha."
+            )),
+            ArticleSection("Salinidade e vida marinha", listOf(
+                "Os organismos precisam lidar com diferenças entre a concentração de sais dentro do corpo e no ambiente. Muitos animais marinhos possuem mecanismos de osmorregulação para equilibrar água e íons; as estratégias variam entre peixes, invertebrados, algas e outros seres vivos.",
+                "Mudanças rápidas de salinidade podem causar estresse em espécies adaptadas a condições mais estáveis. Estuários, onde água doce e salgada se misturam, abrigam espécies que toleram variações e funcionam como importantes áreas de alimentação e reprodução.",
+                "Entender a salinidade ajuda a interpretar a circulação oceânica, a distribuição de espécies e as consequências de alterações no ciclo da água. É um exemplo de como química, geologia, física e biologia se conectam."
+            ))
+        ),
+        listOf("Rios transportam íons liberados pelo intemperismo das rochas.", "A evaporação remove água, mas deixa a maior parte dos sais no oceano.", "A salinidade varia com evaporação, chuva, degelo e circulação.", "Salinidade e temperatura afetam a densidade e a circulação oceânica."),
+        "Fontes para aprofundamento: NOAA Ocean Service; Woods Hole Oceanographic Institution; materiais de oceanografia química."
+    ),
+    Article(
+        10, "Como o Wi-Fi leva dados pelo ar?", "Tecnologia",
+        "Roteadores e aparelhos trocam informações usando ondas de rádio, protocolos e mecanismos para reduzir interferências.",
+        9, "📶",
+        "Wi-Fi é uma família de tecnologias de rede sem fio que permite que celulares, computadores e outros dispositivos troquem dados com um ponto de acesso. As informações são codificadas em sinais de rádio, enviados e recebidos por antenas, sem que seja necessário um cabo entre cada aparelho e o roteador.",
+        listOf(
+            ArticleSection("Os dados viram sinais de rádio", listOf(
+                "Quando você abre uma página, o aparelho divide as informações em unidades de dados e as prepara segundo protocolos de rede. A camada física representa esses dados por sinais de rádio que variam de maneira controlada.",
+                "As redes Wi-Fi usam bandas de frequência autorizadas, incluindo 2,4 GHz, 5 GHz e, em equipamentos compatíveis e regiões onde disponível, 6 GHz. Cada banda tem características diferentes de alcance, capacidade e sensibilidade a obstáculos e interferências.",
+                "A frequência, sozinha, não determina toda a velocidade. A largura do canal, o padrão Wi-Fi, o número de antenas, a qualidade do sinal, a quantidade de aparelhos conectados e a capacidade da conexão com a internet também influenciam o desempenho."
+            )),
+            ArticleSection("Como o roteador e o aparelho se entendem", listOf(
+                "O ponto de acesso anuncia a rede e os dispositivos realizam procedimentos para se associar a ela. Depois da autenticação e da configuração de rede, os aparelhos podem enviar quadros de dados, respeitando as regras de acesso ao meio compartilhado.",
+                "Como vários aparelhos podem transmitir na mesma área, o Wi-Fi precisa coordenar o uso do canal e lidar com colisões, ruído e retransmissões. Quando um quadro não chega corretamente, protocolos podem solicitar seu envio novamente.",
+                "A comunicação é bidirecional: o celular não apenas recebe dados do roteador, como também transmite solicitações, confirmações e informações de controle. Uma conexão boa depende tanto do caminho de ida quanto do de volta."
+            )),
+            ArticleSection("Por que paredes e distância afetam o sinal?", listOf(
+                "As ondas de rádio podem ser absorvidas, refletidas ou espalhadas por paredes, móveis, água e outros materiais. A perda depende da composição e da espessura dos obstáculos, da frequência utilizada e da geometria do ambiente.",
+                "A distância também importa: à medida que a onda se propaga, a energia recebida tende a diminuir. Em apartamentos e casas, posicionar o roteador em local aberto e relativamente central pode melhorar a cobertura, embora a planta e os materiais da construção tenham grande influência.",
+                "Uma rede que mostra sinal forte ainda pode estar lenta se o canal estiver congestionado, se o roteador estiver sobrecarregado ou se a conexão com a operadora apresentar problemas. Barras de sinal não são uma medida direta de velocidade da internet."
+            )),
+            ArticleSection("Segurança: senha não é detalhe", listOf(
+                "A proteção da rede ajuda a impedir que pessoas não autorizadas se conectem e reduz a exposição de dados. É recomendável usar mecanismos modernos de segurança compatíveis com os dispositivos, uma senha longa e exclusiva e firmware atualizado no roteador.",
+                "A criptografia Wi-Fi protege o enlace sem fio, mas não substitui todas as outras camadas de segurança. Serviços HTTPS, atualizações, autenticação robusta e cuidado com páginas falsas continuam importantes.",
+                "Redes públicas podem ter configurações e riscos variados. Evite presumir que uma rede é confiável apenas por ter um nome conhecido; confira o ponto de acesso e mantenha os mecanismos de proteção do aparelho ativos."
+            )),
+            ArticleSection("Wi-Fi não é a mesma coisa que internet", listOf(
+                "Wi-Fi é o enlace local entre o dispositivo e o ponto de acesso. A internet é uma rede global de redes que pode ser alcançada por meio do roteador e da conexão contratada. É possível estar conectado ao Wi-Fi e, mesmo assim, ficar sem internet se a ligação externa falhar.",
+                "Um teste de velocidade mede uma combinação de fatores: a capacidade da conexão externa, o desempenho do aparelho, a qualidade do enlace sem fio e as condições do servidor de teste. Para diagnosticar problemas, compare resultados perto do roteador e por cabo, se possível.",
+                "Essa distinção ajuda a evitar conclusões precipitadas. Se um computador tem velocidade muito menor que um celular na mesma rede, a causa pode estar no adaptador, no driver, na banda utilizada, na posição ou em configurações do próprio computador."
+            ))
+        ),
+        listOf("Wi-Fi usa ondas de rádio para transportar dados codificados.", "Bandas diferentes equilibram alcance, interferência e capacidade.", "Sinal forte não garante internet rápida.", "Wi-Fi é a conexão local; internet é a rede externa acessada pelo roteador."),
+        "Fontes para aprofundamento: Wi-Fi Alliance; IEEE 802.11; materiais educativos da Cisco sobre redes sem fio e segurança."
     )
 )
 
@@ -255,9 +385,9 @@ private data class LocalProfile(val name: String, val email: String, val interes
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val prefs = getSharedPreferences("curiosa_preferences", MODE_PRIVATE)
+        val prefs = getSharedPreferences("curiomundo_preferences", MODE_PRIVATE)
         setContent {
-            CuriosaApp(
+            CurioMundoApp(
                 initialFavorites = prefs.getStringSet("favorites", emptySet()) ?: emptySet(),
                 initialInterests = prefs.getStringSet("interests", emptySet()) ?: emptySet(),
                 initialName = prefs.getString("profile_name", "") ?: "",
@@ -383,7 +513,7 @@ private fun InterestsScreen(
     val valid = selected.size >= 3
     Column(Modifier.fillMaxSize().background(Cream)) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 22.dp, vertical = 24.dp)) {
-            Text("C U R I O S A", color = Green, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 3.sp)
+            Text("CURIOMUNDO", color = Green, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp)
             Spacer(Modifier.height(22.dp))
             Text(title, color = Ink, fontSize = 31.sp, lineHeight = 37.sp, fontWeight = FontWeight.ExtraBold)
             Spacer(Modifier.height(10.dp))
@@ -397,7 +527,7 @@ private fun InterestsScreen(
                         val isSelected = selected.contains(topic.name)
                         Column(
                             Modifier.weight(1f).padding(bottom = 10.dp).clip(RoundedCornerShape(18.dp))
-                                .background(if (isSelected) Color(0xFFE4EDE1) else Paper)
+                                .background(if (isSelected) Color(0xFFE4F7F4) else Paper)
                                 .clickable { onToggle(topic.name) }
                                 .padding(13.dp)
                                 .heightIn(min = 112.dp)
@@ -556,7 +686,7 @@ private fun HomePage(
                     Text("C U R I O S A", color = Green, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 3.sp)
                     Spacer(Modifier.height(14.dp))
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                        Box(Modifier.size(64.dp).clip(CircleShape).background(Color(0xFFE5EBDD)), contentAlignment = Alignment.Center) {
+                        Box(Modifier.size(64.dp).clip(CircleShape).background(Color(0xFFEAE4FF)), contentAlignment = Alignment.Center) {
                             Text(name.firstOrNull()?.uppercase() ?: "C", color = Green, fontSize = 27.sp, fontWeight = FontWeight.Bold)
                         }
                         Column {
@@ -601,7 +731,7 @@ private fun HomePage(
                         Column(Modifier.weight(1f)) {
                             Text("C U R I O S A", color = Green, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp)
                             Text(
-                                when (tab) { "Explorar" -> "Explore o desconhecido"; "Salvos" -> "Sua biblioteca"; else -> if (name.isNotBlank()) "Olá, ${name.substringBefore(" ")}." else "O mundo é fascinante." },
+                                when (tab) { "Explorar" -> "Explore o desconhecido"; "Salvos" -> "Sua biblioteca"; else -> if (name.isNotBlank()) "Olá, ${name.substringBefore(" ")}." else "Um mundo inteiro para descobrir." },
                                 color = Ink, fontSize = 26.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold
                             )
                         }
@@ -628,9 +758,9 @@ private fun HomePage(
                                 .clickable { openArticle(articles[1]) }.padding(22.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Text("✦  DESTAQUE PARA VOCÊ", color = Color(0xFFE3EBD9), fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                            Text(if (interests.contains("Astronomia")) "Estamos olhando para o passado?" else "O mundo é fascinante.", color = Color.White, fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold)
-                            Text("Artigos aprofundados para entender como as coisas funcionam.", color = Color(0xFFE3EBD9), fontSize = 14.sp)
+                            Text("✦  UMA DESCOBERTA PARA VOCÊ", color = Color(0xFFE3EBD9), fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                            Text(if (interests.contains("Astronomia")) "Explore o universo das descobertas" else "O mundo é fascinante.", color = Color.White, fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold)
+                            Text("Ciência, histórias e personagens para todas as curiosidades.", color = Color(0xFFE3EBD9), fontSize = 14.sp)
                             Text("Ler artigo completo  →", color = Gold, fontWeight = FontWeight.SemiBold)
                         }
                     }
@@ -720,7 +850,7 @@ private fun ArticleCard(article: Article, favorite: Boolean, open: () -> Unit, t
         Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(Paper).clickable(onClick = open).padding(15.dp),
         horizontalArrangement = Arrangement.spacedBy(13.dp), verticalAlignment = Alignment.Top
     ) {
-        Box(Modifier.size(76.dp).clip(RoundedCornerShape(17.dp)).background(Color(0xFFE8EDE2)), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(76.dp).clip(RoundedCornerShape(17.dp)).background(Color(0xFFE8E7F7)), contentAlignment = Alignment.Center) {
             Text(article.emoji, fontSize = 34.sp)
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
